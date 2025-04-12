@@ -1,5 +1,7 @@
 <script setup>
-import { reactive, computed } from 'vue'
+import { reactive, computed, ref } from 'vue'
+
+const isDarkMode = ref(false)
 const state = reactive({
   authorName: 'Jane Doe',
   books: [
@@ -28,10 +30,22 @@ const hasBooks = computed(() => {
 const deleteBook = (bookId) => {
   state.books = state.books.filter((book) => book.id !== bookId)
 }
+const currentTheme = computed(() => {
+  return isDarkMode.value ? 'dark' : 'light'
+})
+
+const toggleTheme = () => {
+  isDarkMode.value = !isDarkMode.value
+}
 </script>
 
 <template>
-  <div class="container">
+  <div class="container" :class="currentTheme">
+    <div>
+      <button @click="toggleTheme" class="theme-toggle">
+        {{ isDarkMode ? '🌙 Dark Mode' : '🌞 Light Mode' }}
+      </button>
+    </div>
     <header>
       <p>Author Name: {{ state.authorName }}</p>
     </header>
@@ -64,6 +78,25 @@ const deleteBook = (bookId) => {
   margin: 0 auto;
   padding: 20px;
 }
+.container.dark {
+  background-color: #000;
+  color: #fff;
+}
+
+.container.dark .theme-toggle {
+  background-color: #333;
+  color: #fff;
+}
+
+.container.light .theme-toggle {
+  background-color: #f0f0f0;
+  color: #000;
+}
+
+.container.light {
+  background-color: #fff;
+  color: #000;
+}
 
 .delete-button {
   margin-left: 10px;
@@ -72,5 +105,16 @@ const deleteBook = (bookId) => {
   border: none;
   border-radius: 5px;
   cursor: pointer;
+}
+
+.theme-toggle {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+.theme-toggle:hover {
+  transform: scale(1.05);
 }
 </style>
