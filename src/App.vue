@@ -1,120 +1,95 @@
 <script setup>
-import { reactive, computed, ref } from 'vue'
+import { ref } from 'vue'
 
-const isDarkMode = ref(false)
-const state = reactive({
-  authorName: 'Jane Doe',
-  books: [
-    {
-      id: 1,
-      title: 'Book World',
-      description: 'Description 1',
-    },
-    {
-      id: 2,
-      title: 'Book Heaven',
-      description: 'Description 2',
-    },
-    {
-      id: 3,
-      title: 'Book at the Park',
-      description: 'Description 3',
-    },
-  ],
-})
+const age = ref()
+const message = ref('')
+const gender = ref('')
+const checkedNames = ref([])
 
-const hasBooks = computed(() => {
-  return state.books.length > 0
-})
-
-const deleteBook = (bookId) => {
-  state.books = state.books.filter((book) => book.id !== bookId)
-}
-const currentTheme = computed(() => {
-  return isDarkMode.value ? 'dark' : 'light'
-})
-
-const toggleTheme = () => {
-  isDarkMode.value = !isDarkMode.value
-}
+const grade = ref([])
+const selected = ref('A')
+const options = ref([
+  {
+    text: 'One',
+    value: 'A',
+  },
+  {
+    text: 'Two',
+    value: 'B',
+  },
+  {
+    text: 'Three',
+    value: 'C',
+  },
+])
 </script>
 
 <template>
-  <div class="container" :class="currentTheme">
+  <form @submit.prevent="">
     <div>
-      <button @click="toggleTheme" class="theme-toggle">
-        {{ isDarkMode ? '🌙 Dark Mode' : '🌞 Light Mode' }}
-      </button>
+      <span>Age : {{ age }}</span>
+      <br />
+      <p>Message : {{ message }}</p>
+      <br />
+      <span
+        >Checked Names :
+        <span v-for="(name, index) in checkedNames" :key="index">{{ name }}-</span></span
+      >
+      <br />
+      <span>Gender: {{ gender || 'Not selected' }}</span>
+      <br />
+      <span>Grade : {{ grade }}</span>
+      <br />
+      <span>Selected : {{ selected }}</span>
+      <br />
     </div>
-    <header>
-      <p>Author Name: {{ state.authorName }}</p>
-    </header>
-    <div class="content">
-      <template v-if="hasBooks">
-        <p>Book List:</p>
-        <ul>
-          <li v-for="book in state.books" :key="book.id">
-            {{ book.title }}
-            <button class="delete-button" @click="deleteBook(book.id)">-</button>
-          </li>
-        </ul>
-      </template>
-      <template v-else>
-        <p>No books available</p>
-      </template>
+    <input type="number" id="age" v-model.number="age" />
+    <textarea v-model="message"></textarea>
+    <div class="checkbox-container">
+      <input type="checkbox" id="jack" value="Jack" v-model="checkedNames" />
+      <label for="jack">Jack</label>
     </div>
-  </div>
+
+    <div class="checkbox-container">
+      <input type="checkbox" id="john" value="John" v-model="checkedNames" />
+      <label for="john">John</label>
+    </div>
+
+    <div class="checkbox-container">
+      <input type="checkbox" id="mike" value="Mike" v-model="checkedNames" />
+      <label for="mike">Mike</label>
+    </div>
+    <div class="checkbox-container">
+      <input type="radio" id="male" value="Male" v-model="gender" />
+      <label for="male">Male</label>
+      <input type="radio" id="female" value="Female" v-model="gender" />
+      <label for="female">Female</label>
+    </div>
+    <div class="checkbox-container">
+      <select v-model="grade" multiple>
+        <option value="" disabled>Select one</option>
+        <option value="A">A</option>
+        <option value="B">B</option>
+        <option value="C">C</option>
+      </select>
+    </div>
+    <div class="checkbox-container">
+      <select v-model="selected">
+        <option v-for="option in options" v-bind:key="option.value" v-bind:value="option.value">
+          {{ option.text }}
+        </option>
+      </select>
+    </div>
+  </form>
 </template>
 
 <style scoped>
-.container {
+form {
   display: flex;
   flex-direction: column;
-  width: 720px;
-  height: 25vh;
-  justify-content: center;
-  align-items: flex-start;
-  border: 1px solid #000;
+  gap: 10px;
+  width: 300px;
   margin: 0 auto;
-  padding: 20px;
-}
-.container.dark {
-  background-color: #000;
-  color: #fff;
-}
-
-.container.dark .theme-toggle {
-  background-color: #333;
-  color: #fff;
-}
-
-.container.light .theme-toggle {
-  background-color: #f0f0f0;
-  color: #000;
-}
-
-.container.light {
-  background-color: #fff;
-  color: #000;
-}
-
-.delete-button {
-  margin-left: 10px;
-  padding: 1px 8px;
-  background-color: #ff4444;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.theme-toggle {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-.theme-toggle:hover {
-  transform: scale(1.05);
+  margin-top: 100px;
 }
 </style>
