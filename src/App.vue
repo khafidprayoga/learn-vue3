@@ -1,5 +1,5 @@
 <script setup>
-import { ref, watch } from 'vue'
+import { onMounted, useTemplateRef, ref, watch } from 'vue'
 
 const question = ref('')
 const answer = ref('Ask a question')
@@ -22,13 +22,23 @@ watch(question, async (newQuestion, oldQuestion) => {
     }
   }
 })
+
+const inputQuestion = useTemplateRef('input-question')
+
+const focusInput = () => {
+  inputQuestion.value.focus()
+}
+
+onMounted(() => {
+  focusInput()
+})
 </script>
 
 <template>
   <form @submit.prevent="">
     <div>
       <label for="question">Ask a question with yes/no</label>
-      <input type="text" v-model="question" id="question" />
+      <input type="text" v-model="question" id="question" ref="input-question" />
       <p :class="{ thinking: answer === 'Thinking...' }">
         {{ answer }}
       </p>
