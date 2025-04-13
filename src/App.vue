@@ -1,84 +1,37 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
-const age = ref()
-const message = ref('')
-const gender = ref('')
-const checkedNames = ref([])
+const question = ref('')
+const answer = ref('Ask a question')
+const isLoading = ref(false)
 
-const grade = ref([])
-const selected = ref('A')
-const options = ref([
-  {
-    text: 'One',
-    value: 'A',
-  },
-  {
-    text: 'Two',
-    value: 'B',
-  },
-  {
-    text: 'Three',
-    value: 'C',
-  },
-])
+watch(question, async (newQuestion, oldQuestion) => {
+  if (newQuestion.includes('?')) {
+    isLoading.value = true
+    answer.value = 'Thinking...'
+
+    try {
+      await new Promise((resolve) => setTimeout(resolve, 1500))
+      const res = await fetch('https://yesno.wtf/api')
+
+      answer.value = (await res.json()).answer
+    } catch (error) {
+      answer.value = 'Could reach the API'
+    } finally {
+      isLoading.value = false
+    }
+  }
+})
 </script>
 
 <template>
   <form @submit.prevent="">
     <div>
-      <span>Age : {{ age }}</span>
-      <br />
-      <p>Message : {{ message }}</p>
-      <br />
-      <span
-        >Checked Names :
-        <span v-for="(name, index) in checkedNames" :key="index">{{ name }}-</span></span
-      >
-      <br />
-      <span>Gender: {{ gender || 'Not selected' }}</span>
-      <br />
-      <span>Grade : {{ grade }}</span>
-      <br />
-      <span>Selected : {{ selected }}</span>
-      <br />
-    </div>
-    <input type="number" id="age" v-model.number="age" />
-    <textarea v-model="message"></textarea>
-    <div class="checkbox-container">
-      <input type="checkbox" id="jack" value="Jack" v-model="checkedNames" />
-      <label for="jack">Jack</label>
-    </div>
-
-    <div class="checkbox-container">
-      <input type="checkbox" id="john" value="John" v-model="checkedNames" />
-      <label for="john">John</label>
-    </div>
-
-    <div class="checkbox-container">
-      <input type="checkbox" id="mike" value="Mike" v-model="checkedNames" />
-      <label for="mike">Mike</label>
-    </div>
-    <div class="checkbox-container">
-      <input type="radio" id="male" value="Male" v-model="gender" />
-      <label for="male">Male</label>
-      <input type="radio" id="female" value="Female" v-model="gender" />
-      <label for="female">Female</label>
-    </div>
-    <div class="checkbox-container">
-      <select v-model="grade" multiple>
-        <option value="" disabled>Select one</option>
-        <option value="A">A</option>
-        <option value="B">B</option>
-        <option value="C">C</option>
-      </select>
-    </div>
-    <div class="checkbox-container">
-      <select v-model="selected">
-        <option v-for="option in options" v-bind:key="option.value" v-bind:value="option.value">
-          {{ option.text }}
-        </option>
-      </select>
+      <label for="question">Ask a question with yes/no</label>
+      <input type="text" v-model="question" id="question" />
+      <p :class="{ thinking: answer === 'Thinking...' }">
+        {{ answer }}
+      </p>
     </div>
   </form>
 </template>
@@ -91,5 +44,23 @@ form {
   width: 300px;
   margin: 0 auto;
   margin-top: 100px;
+}
+p.thinking {
+  color: #ff6600;
+  animation: pulse 1.5s infinite;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0.5;
+  }
+
+  50% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0.5;
+  }
 }
 </style>
