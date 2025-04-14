@@ -38,14 +38,18 @@ const posts = ref([
   {
     id: 1,
     title: 'My first blog post',
+    isRead: false,
   },
   {
     id: 2,
     title: 'Learning Laravel 12.x',
+    isRead: false,
   },
   {
     id: 3,
     title: 'Learning VueJS',
+    author: 'Evan You',
+    isRead: true,
   },
 ])
 
@@ -62,7 +66,7 @@ const postFontSize = ref(1)
     <BlogPost
       v-for="post in posts"
       :key="post.id"
-      :title="post.title"
+      v-bind="post"
       @enlarge-text="postFontSize += 0.3"
     >
       <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Quisquam, quos.</p>
