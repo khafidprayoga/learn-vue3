@@ -1,1 +1,21 @@
 @import 'tailwindcss';
+
+.container {
+  @apply lg:w-[700px] mx-auto mt-15;
+}
+
+.todo-list {
+  @apply flex flex-col gap-5 py-5;
+}
+
+.todo-item {
+  @apply flex flex-row justify-between px-5;
+}
+
+.todo-content {
+  @apply text-xl underline font-bold;
+}
+
+.todo-action {
+  @apply flex flex-row gap-5;
+}
