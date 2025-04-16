@@ -20,10 +20,19 @@ const todos = reactive<Todo[]>([
     title: 'Belajar React Native',
     isDone: true,
   },
+  {
+    id: 4,
+    title: 'Merge main branch dan deploy ke staging',
+    isDone: true,
+  },
+
 ])
 
-const handleEdit = (id: number) => {
-  console.log(id)
+const handleEdit = (id: number, newTitle: string) => {
+  const todoIndex = todos.findIndex((todo) => todo.id === id)
+  if (todoIndex !== -1) {
+    todos[todoIndex].title = newTitle
+  }
 }
 
 const handleDone = (id: number) => {

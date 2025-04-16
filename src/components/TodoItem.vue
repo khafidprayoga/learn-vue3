@@ -1,6 +1,7 @@
 <script setup lang="ts">
-import { defineProps } from 'vue'
+import { defineProps, ref } from 'vue'
 import Button from '@/components/ui/button/Button.vue'
+import Input from '@/components/ui/input/Input.vue'
 
 const props = defineProps<{
   id: number
@@ -9,24 +10,34 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-  (e: 'edit', id: number): void
   (e: 'done', id: number): void
+  (e: 'edit', id: number, title: string): void
 }>()
 
 const handleEdit = () => {
-  emit('edit', props.id)
+  isEdit.value = true
 }
 
 const handleDone = () => {
   emit('done', props.id)
 }
+
+const handleSave = () => {
+  isEdit.value = false
+  emit('edit', props.id, newTitle.value)
+}
+
+const isEdit = ref(false)
+const newTitle = ref(props.title)
+
 </script>
 
 <template>
   <div class="todo-item">
-    <div class="todo-content">{{ props.title }}</div>
+    <Input v-if="isEdit" v-model="newTitle" @keyup.enter="handleSave" class="edit-input" />
+    <span v-else class="todo-content">{{ props.title }}</span>
     <div class="todo-action">
-      <Button variant="outline" @click="handleEdit" class="btn">Edit</Button>
+      <Button variant="outline" @click="handleEdit" class="btn" v-if="!isEdit">Edit</Button>
       <Button variant="outline" @click="handleDone" class="btn">Done</Button>
     </div>
   </div>
@@ -37,5 +48,10 @@ const handleDone = () => {
 
 .btn:hover {
   cursor: pointer;
+}
+
+.edit-input {
+  @apply border border-gray-300 bg-white rounded px-2 py-1;
+  width: 75%;
 }
 </style>
