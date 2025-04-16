@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref, watch } from 'vue'
 import TodoItem from './components/TodoItem.vue'
 import TodoList from './components/TodoList.vue'
 import { type Todo } from './types/todo'
@@ -18,12 +18,12 @@ const todos = reactive<Todo[]>([
   {
     id: 3,
     title: 'Belajar React Native',
-    isDone: true,
+    isDone: false,
   },
   {
     id: 4,
     title: 'Merge main branch dan deploy ke staging',
-    isDone: true,
+    isDone: false,
   },
 
 ])
@@ -39,8 +39,17 @@ const handleDone = (id: number) => {
   const todoIndex = todos.findIndex((todo) => todo.id === id)
   if (todoIndex !== -1) {
     todos.splice(todoIndex, 1)
+    completedTodosCount.value++
   }
 }
+
+const completedTodosCount = ref(
+  Number(sessionStorage.getItem('completedTodosCount')) || 0
+)
+
+watch(completedTodosCount, (newCount) => {
+  sessionStorage.setItem('completedTodosCount', newCount.toString())
+})
 </script>
 
 <template>
@@ -49,6 +58,9 @@ const handleDone = (id: number) => {
     <TodoList :todos="todos">
       <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
     </TodoList>
+    <div>
+      <span>Completed: {{ completedTodosCount }}</span>
+    </div>
   </div>
 </template>
 
