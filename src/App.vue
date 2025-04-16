@@ -21,13 +21,24 @@ const todos = reactive<Todo[]>([
     isDone: true,
   },
 ])
+
+const handleEdit = (id: number) => {
+  console.log(id)
+}
+
+const handleDone = (id: number) => {
+  const todoIndex = todos.findIndex((todo) => todo.id === id)
+  if (todoIndex !== -1) {
+    todos.splice(todoIndex, 1)
+  }
+}
 </script>
 
 <template>
   <h1 class="text-2xl font-bold text-center mt-5">Todo List APP</h1>
   <div class="container">
     <TodoList :todos="todos">
-      <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" />
+      <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
     </TodoList>
   </div>
 </template>

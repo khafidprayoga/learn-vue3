@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
-import Button from './ui/button/Button.vue'
+import Button from '@/components/ui/button/Button.vue'
 
 const props = defineProps<{
   id: number
@@ -26,8 +26,16 @@ const handleDone = () => {
   <div class="todo-item">
     <div class="todo-content">{{ props.title }}</div>
     <div class="todo-action">
-      <Button variant="outline" @click="handleEdit">Edit</Button>
-      <Button variant="outline" @click="handleDone">Done</Button>
+      <Button variant="outline" @click="handleEdit" class="btn">Edit</Button>
+      <Button variant="outline" @click="handleDone" class="btn">Done</Button>
     </div>
   </div>
 </template>
+
+<style scoped>
+@reference "tailwindcss";
+
+.btn:hover {
+  cursor: pointer;
+}
+</style>

@@ -15,8 +15,9 @@
   @apply flex flex-row justify-between px-5;
 }
 
+
 .todo-content {
-  @apply text-xl underline font-bold;
+  @apply text-xl  font-bold;
 }
 
 .todo-action {
