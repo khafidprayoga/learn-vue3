@@ -1,11 +1,45 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { reactive, ref, watch, onMounted } from 'vue'
 import TodoItem from './components/TodoItem.vue'
 import TodoList from './components/TodoList.vue'
 import { type Todo } from './types/todo'
 import AddTodo from './components/AddTodo.vue'
 import TodoCount from './components/TodoCount.vue'
+
+
 const todos = reactive<Todo[]>([])
+const completedTodosCount = ref(
+  Number(localStorage.getItem('completedTodosCount')) || 0
+)
+
+onMounted(() => {
+  const savedTodos = localStorage.getItem('todos')
+  if (savedTodos) {
+    const parsed = JSON.parse(savedTodos)
+    todos.push(...parsed)
+  }
+})
+
+watch(completedTodosCount, (newCount) => {
+  localStorage.setItem('completedTodosCount', newCount.toString())
+})
+
+watch(todos, (newTodos) => {
+  localStorage.setItem('todos', JSON.stringify(newTodos))
+})
+
+const handleNewTodo = (title: string) => {
+  const id = Number(localStorage.getItem('lastId')) || 0
+  const newTodo: Todo = {
+    id: id + 1,
+    title: title,
+    isDone: false
+  }
+
+  todos.push(newTodo)
+
+  localStorage.setItem('lastId', (id + 1).toString())
+}
 
 const handleEdit = (id: number, newTitle: string) => {
   const todoIndex = todos.findIndex((todo) => todo.id === id)
@@ -20,27 +54,6 @@ const handleDone = (id: number) => {
     todos.splice(todoIndex, 1)
     completedTodosCount.value++
   }
-}
-
-const completedTodosCount = ref(
-  Number(sessionStorage.getItem('completedTodosCount')) || 0
-)
-
-watch(completedTodosCount, (newCount) => {
-  sessionStorage.setItem('completedTodosCount', newCount.toString())
-})
-
-const handleNewTodo = (title: string) => {
-  const id = Number(sessionStorage.getItem('lastId')) || 0
-  const newTodo: Todo = {
-    id: id + 1,
-    title: title,
-    isDone: false
-  }
-
-  todos.push(newTodo)
-
-  sessionStorage.setItem('lastId', (id + 1).toString())
 }
 </script>
 
