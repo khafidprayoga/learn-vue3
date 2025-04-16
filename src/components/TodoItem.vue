@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue'
+import Button from './ui/button/Button.vue'
 
 const props = defineProps<{
   id: number
@@ -25,8 +26,8 @@ const handleDone = () => {
   <div class="todo-item">
     <div class="todo-content">{{ props.title }}</div>
     <div class="todo-action">
-      <button class="btn-edit" @click="handleEdit">Edit</button>
-      <button class="btn-delete" @click="handleDone">Done</button>
+      <Button variant="outline" @click="handleEdit">Edit</Button>
+      <Button variant="outline" @click="handleDone">Done</Button>
     </div>
   </div>
 </template>
