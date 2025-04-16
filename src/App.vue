@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { reactive, ref, watch, onMounted } from 'vue'
+import { reactive, watch, onMounted, computed } from 'vue'
 import TodoItem from './components/TodoItem.vue'
 import TodoList from './components/TodoList.vue'
 import { type Todo } from './types/todo'
@@ -8,9 +8,13 @@ import TodoCount from './components/TodoCount.vue'
 
 
 const todos = reactive<Todo[]>([])
-const completedTodosCount = ref(
-  Number(localStorage.getItem('completedTodosCount')) || 0
-)
+const completedTodosCount = computed(() => {
+  return todos.filter((todo) => todo.isDone).length
+})
+
+const activeTodosCount = computed(() => {
+  return todos.length - completedTodosCount.value
+})
 
 onMounted(() => {
   const savedTodos = localStorage.getItem('todos')
@@ -51,8 +55,7 @@ const handleEdit = (id: number, newTitle: string) => {
 const handleDone = (id: number) => {
   const todoIndex = todos.findIndex((todo) => todo.id === id)
   if (todoIndex !== -1) {
-    todos.splice(todoIndex, 1)
-    completedTodosCount.value++
+    todos[todoIndex].isDone = true
   }
 }
 </script>
@@ -60,18 +63,12 @@ const handleDone = (id: number) => {
 <template>
   <h1 class="text-2xl font-bold text-center mt-5">Todo List APP</h1>
   <div class="container">
+    <AddTodo @add-todo="handleNewTodo" />
     <TodoList :todos="todos">
       <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
     </TodoList>
-    <TodoCount :count="completedTodosCount" />
-    <AddTodo @add-todo="handleNewTodo" />
+    <TodoCount :count="todos.length" :completedCount="completedTodosCount" :activeCount="activeTodosCount" />
   </div>
 </template>
 
-<style scoped>
-@reference "tailwindcss";
-
-.container {
-  @apply max-w-md;
-}
-</style>
+<style scoped></style>

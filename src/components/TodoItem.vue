@@ -33,14 +33,14 @@ const newTitle = ref(props.title)
 </script>
 
 <template>
-  <div class="todo-item">
+  <li class="todo-item" v-if="!isDone">
     <Input v-if="isEdit" v-model="newTitle" @keyup.enter="handleSave" class="edit-input" />
     <span v-else class="todo-content">{{ props.title }}</span>
     <div class="todo-action">
       <Button variant="outline" @click="handleEdit" class="btn" v-if="!isEdit">Edit</Button>
       <Button variant="outline" @click="handleDone" class="btn">Done</Button>
     </div>
-  </div>
+  </li>
 </template>
 
 <style scoped>

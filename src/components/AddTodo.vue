@@ -35,7 +35,7 @@ const emit = defineEmits<{
 </script>
 
 <template>
-  <div class="mt-10">
+  <div class="mt-10 todo-form">
     <p class="text-xl font-bold my-3">Add New Todo</p>
     <form class="" @submit="onSubmit">
       <FormField v-slot="{ field }" name="title">
@@ -53,3 +53,15 @@ const emit = defineEmits<{
     </form>
   </div>
 </template>
+
+<style scoped>
+@reference "tailwindcss";
+
+.todo-form {
+  @apply max-w-sm mx-auto;
+}
+
+[type="submit"] {
+  @apply cursor-pointer;
+}
+</style>
