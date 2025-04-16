@@ -4,7 +4,7 @@ import TodoItem from './components/TodoItem.vue'
 import TodoList from './components/TodoList.vue'
 import { type Todo } from './types/todo'
 import AddTodo from './components/AddTodo.vue'
-
+import TodoCount from './components/TodoCount.vue'
 const todos = reactive<Todo[]>([])
 
 const handleEdit = (id: number, newTitle: string) => {
@@ -50,9 +50,7 @@ const handleNewTodo = (title: string) => {
     <TodoList :todos="todos">
       <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
     </TodoList>
-    <div>
-      <span>Completed: {{ completedTodosCount }}</span>
-    </div>
+    <TodoCount :count="completedTodosCount" />
     <AddTodo @add-todo="handleNewTodo" />
   </div>
 </template>
@@ -61,6 +59,6 @@ const handleNewTodo = (title: string) => {
 @reference "tailwindcss";
 
 .container {
-  @apply p-5 rounded-lg;
+  @apply max-w-md;
 }
 </style>
