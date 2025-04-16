@@ -7,7 +7,7 @@ const props = defineProps<{
 </script>
 
 <template>
-  <ul class="todo-list">
+  <ul class="todo-list font-mono">
     <template v-if="props.todos.length === 0">
       <span class="text-lg font-mono text-center">All task done 👍</span>
     </template>

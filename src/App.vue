@@ -3,30 +3,9 @@ import { reactive, ref, watch } from 'vue'
 import TodoItem from './components/TodoItem.vue'
 import TodoList from './components/TodoList.vue'
 import { type Todo } from './types/todo'
+import AddTodo from './components/AddTodo.vue'
 
-const todos = reactive<Todo[]>([
-  {
-    id: 1,
-    title: 'Belajar Vue3',
-    isDone: false,
-  },
-  {
-    id: 2,
-    title: 'Belajar Laravel 12 dan PostgreSQL',
-    isDone: false,
-  },
-  {
-    id: 3,
-    title: 'Belajar React Native',
-    isDone: false,
-  },
-  {
-    id: 4,
-    title: 'Merge main branch dan deploy ke staging',
-    isDone: false,
-  },
-
-])
+const todos = reactive<Todo[]>([])
 
 const handleEdit = (id: number, newTitle: string) => {
   const todoIndex = todos.findIndex((todo) => todo.id === id)
@@ -50,6 +29,19 @@ const completedTodosCount = ref(
 watch(completedTodosCount, (newCount) => {
   sessionStorage.setItem('completedTodosCount', newCount.toString())
 })
+
+const handleNewTodo = (title: string) => {
+  const id = Number(sessionStorage.getItem('lastId')) || 0
+  const newTodo: Todo = {
+    id: id + 1,
+    title: title,
+    isDone: false
+  }
+
+  todos.push(newTodo)
+
+  sessionStorage.setItem('lastId', (id + 1).toString())
+}
 </script>
 
 <template>
@@ -61,6 +53,7 @@ watch(completedTodosCount, (newCount) => {
     <div>
       <span>Completed: {{ completedTodosCount }}</span>
     </div>
+    <AddTodo @add-todo="handleNewTodo" />
   </div>
 </template>
 
@@ -68,6 +61,6 @@ watch(completedTodosCount, (newCount) => {
 @reference "tailwindcss";
 
 .container {
-  @apply bg-zinc-300 p-5 rounded-lg;
+  @apply p-5 rounded-lg;
 }
 </style>

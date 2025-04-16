@@ -4,11 +4,11 @@
 @custom-variant dark (&:is(.dark *));
 
 .container {
-  @apply lg:w-[700px] mx-auto mt-15;
+  @apply lg:w-[700px] mx-auto mt-15 lg:min-h-[700px];
 }
 
 .todo-list {
-  @apply flex flex-col gap-5 py-5;
+  @apply flex flex-col gap-5 py-5 min-h-[300px];
 }
 
 .todo-item {
