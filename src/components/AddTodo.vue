@@ -1,25 +1,21 @@
 <script setup lang="ts">
-import { useForm } from 'vee-validate';
-import { toTypedSchema } from '@vee-validate/zod';
-import * as z from 'zod';
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/zod'
+import * as z from 'zod'
 
-import {
-  FormControl,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormField
-} from "@/components/ui/form"
+import { FormControl, FormItem, FormLabel, FormMessage, FormField } from '@/components/ui/form'
 
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
+import { Input } from '@/components/ui/input'
+import { Button } from '@/components/ui/button'
 
-const formSchema = toTypedSchema(z.object({
-  title: z.string().min(3, { message: 'Title must be at least 3 characters long' }),
-}))
+const formSchema = toTypedSchema(
+  z.object({
+    title: z.string().min(3, { message: 'Title must be at least 3 characters long' }),
+  }),
+)
 
 const form = useForm({
-  validationSchema: formSchema
+  validationSchema: formSchema,
 })
 
 const onSubmit = form.handleSubmit((values) => {
@@ -27,11 +23,9 @@ const onSubmit = form.handleSubmit((values) => {
   emit('addTodo', values.title)
 })
 
-
 const emit = defineEmits<{
   (e: 'addTodo', title: string): void
 }>()
-
 </script>
 
 <template>
@@ -47,9 +41,7 @@ const emit = defineEmits<{
           <FormMessage />
         </FormItem>
       </FormField>
-      <Button type="submit" class="mt-3">
-        Submit
-      </Button>
+      <Button type="submit" class="mt-3"> Submit </Button>
     </form>
   </div>
 </template>
@@ -61,7 +53,7 @@ const emit = defineEmits<{
   @apply max-w-sm mx-auto;
 }
 
-[type="submit"] {
+[type='submit'] {
   @apply cursor-pointer;
 }
 </style>

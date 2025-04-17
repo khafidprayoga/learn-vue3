@@ -29,7 +29,6 @@ const handleSave = () => {
 
 const isEdit = ref(false)
 const newTitle = ref(props.title)
-
 </script>
 
 <template>

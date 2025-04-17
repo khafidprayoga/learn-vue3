@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { reactive, watch, onMounted, computed } from 'vue'
+import { type Todo } from './types/todo'
+
 import TodoItem from './components/TodoItem.vue'
 import TodoList from './components/TodoList.vue'
-import { type Todo } from './types/todo'
 import AddTodo from './components/AddTodo.vue'
 import TodoCount from './components/TodoCount.vue'
-
 
 const todos = reactive<Todo[]>([])
 const completedTodosCount = computed(() => {
@@ -37,7 +37,7 @@ const handleNewTodo = (title: string) => {
   const newTodo: Todo = {
     id: id + 1,
     title: title,
-    isDone: false
+    isDone: false,
   }
 
   todos.push(newTodo)

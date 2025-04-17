@@ -26,6 +26,9 @@ importers:
       lucide-vue-next:
         specifier: ^0.488.0
         version: 0.488.0(vue@3.5.13(typescript@5.8.3))
+      pocketbase:
+        specifier: ^0.25.2
+        version: 0.25.2
       reka-ui:
         specifier: ^2.2.0
         version: 2.2.0(typescript@5.8.3)(vue@3.5.13(typescript@5.8.3))
@@ -1652,6 +1655,9 @@ packages:
     resolution: {integrity: sha512-eG2dWTVw5bzqGRztnHExczNxt5VGsE6OwTeCG3fdUf9KBsZzO3R5OIIIzWR+iZA0NtZ+RDVdaoE2dK1cn6jH4g==}
     engines: {node: '>=0.10'}
     hasBin: true
+
+  pocketbase@0.25.2:
+    resolution: {integrity: sha512-ONZl1+qHJMnhR2uacBlBJ90lm7njtL/zy0606+1ROfK9hSL4LRBRc8r89rMcNRzPzRqCNyoFTh2Qg/lYXdEC1w==}
 
   postcss-selector-parser@6.1.2:
     resolution: {integrity: sha512-Q8qQfPiZ+THO/3ZrOrO0cJJKfpYCagtMUkXbnEfmgUjwXg6z/WBeOyS9APBBPCTSiDV+s4SwQGu8yFsiMRIudg==}
@@ -3481,6 +3487,8 @@ snapshots:
   picomatch@4.0.2: {}
 
   pidtree@0.6.0: {}
+
+  pocketbase@0.25.2: {}
 
   postcss-selector-parser@6.1.2:
     dependencies:
