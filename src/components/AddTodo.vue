@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
+import { computed } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
@@ -19,13 +20,18 @@ const form = useForm({
 })
 
 const onSubmit = form.handleSubmit((values) => {
-  form.resetForm()
+  form.validate()
   emit('addTodo', values.title)
-})
+  form.resetForm()
 
+})
 const emit = defineEmits<{
   (e: 'addTodo', title: string): void
 }>()
+
+const isDisabled = computed(() => {
+  return !!form.errors.value.title?.length
+})
 </script>
 
 <template>
@@ -34,14 +40,14 @@ const emit = defineEmits<{
     <form class="" @submit="onSubmit">
       <FormField v-slot="{ field }" name="title">
         <FormItem>
-          <FormLabel>Title</FormLabel>
+          <FormLabel>Title: {{ form.values.title }}</FormLabel>
           <FormControl>
             <Input type="text" placeholder="Belajar VueJS" v-bind="field" />
           </FormControl>
           <FormMessage />
         </FormItem>
       </FormField>
-      <Button type="submit" class="mt-3"> Submit </Button>
+      <Button type="submit" class="mt-3 " :disabled="isDisabled"> Submit </Button>
     </form>
   </div>
 </template>
