@@ -4,14 +4,13 @@ import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
 
 const props = defineProps<{
-  id: number
+  id: string
   title: string
-  isDone: boolean
 }>()
 
 const emit = defineEmits<{
-  (e: 'done', id: number): void
-  (e: 'edit', id: number, title: string): void
+  (e: 'done', id: string): void
+  (e: 'edit', id: string, title: string): void
 }>()
 
 const handleEdit = () => {
@@ -32,7 +31,7 @@ const newTitle = ref(props.title)
 </script>
 
 <template>
-  <li class="todo-item" v-if="!isDone">
+  <li class="todo-item">
     <Input v-if="isEdit" v-model="newTitle" @keyup.enter="handleSave" class="edit-input" />
     <span v-else class="todo-content">{{ props.title }}</span>
     <div class="todo-action">

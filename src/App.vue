@@ -1,73 +1,65 @@
 <script setup lang="ts">
-import { reactive, watch, onMounted, computed } from 'vue'
-import { type Todo } from './types/todo'
+import { onMounted, watch, } from 'vue'
+import { UpdateType, usePocketbaseClient } from './composables/usePocketbaseClient'
 
 import TodoItem from './components/TodoItem.vue'
 import TodoList from './components/TodoList.vue'
 import AddTodo from './components/AddTodo.vue'
 import TodoCount from './components/TodoCount.vue'
 
-const todos = reactive<Todo[]>([])
-const completedTodosCount = computed(() => {
-  return todos.filter((todo) => todo.isDone).length
+const {
+  items: todos,
+  isLoading,
+  error,
+  totalItemsCount,
+  totalItemsDone,
+  totalItemsActive,
+  fetchAll, getCount, update, create, resetData } = usePocketbaseClient('todos')
+
+
+watch(error, () => {
+  // todo show error message
 })
 
-const activeTodosCount = computed(() => {
-  return todos.length - completedTodosCount.value
+watch(isLoading, () => {
+  // todo show loading spinner on list
 })
 
-onMounted(() => {
-  const savedTodos = localStorage.getItem('todos')
-  if (savedTodos) {
-    const parsed = JSON.parse(savedTodos)
-    todos.push(...parsed)
-  }
+
+// const todosApis = reactive({})
+onMounted(async () => {
+  getCount().then(async () => {
+    await fetchAll({
+      filter: 'is_done = false'
+    })
+  })
 })
 
-watch(completedTodosCount, (newCount) => {
-  localStorage.setItem('completedTodosCount', newCount.toString())
-})
 
-watch(todos, (newTodos) => {
-  localStorage.setItem('todos', JSON.stringify(newTodos))
-})
-
-const handleNewTodo = (title: string) => {
-  const id = Number(localStorage.getItem('lastId')) || 0
-  const newTodo: Todo = {
-    id: id + 1,
-    title: title,
-    isDone: false,
-  }
-
-  todos.push(newTodo)
-
-  localStorage.setItem('lastId', (id + 1).toString())
+const handleNewTodo = async (title: string) => {
+  await create({ title, is_done: false })
 }
 
-const handleEdit = (id: number, newTitle: string) => {
-  const todoIndex = todos.findIndex((todo) => todo.id === id)
-  if (todoIndex !== -1) {
-    todos[todoIndex].title = newTitle
-  }
+const handleEdit = async (id: string, newTitle: string) => {
+  await update(id.toString(), { title: newTitle })
 }
 
-const handleDone = (id: number) => {
-  const todoIndex = todos.findIndex((todo) => todo.id === id)
-  if (todoIndex !== -1) {
-    todos[todoIndex].isDone = true
-  }
+const handleDone = async (id: string) => {
+  await update(id.toString(), { is_done: true }, UpdateType.Done).then(() => {
+    getCount()
+  })
 }
+
 </script>
 
 <template>
-  <h1 class="text-2xl font-bold text-center mt-5">Todo List APP</h1>
+  <h1 class="text-2xl font-bold text-center mt-5 cursor-pointer" @dblclick="resetData">Todo List APP</h1>
   <div class="container">
     <AddTodo @add-todo="handleNewTodo" />
     <TodoList :todos="todos">
       <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
     </TodoList>
-    <TodoCount :count="todos.length" :completedCount="completedTodosCount" :activeCount="activeTodosCount" />
+    <TodoCount :count="totalItemsCount" :completedCount="totalItemsDone" :activeCount="totalItemsActive" />
   </div>
 </template>
 
