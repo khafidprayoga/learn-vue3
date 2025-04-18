@@ -1,4 +1,4 @@
-import PocketBase from 'pocketbase'
+import PocketBase, { ClientResponseError } from 'pocketbase'
 import { ref, reactive } from 'vue'
 
 const pb = new PocketBase('http://127.0.0.1:8090')
@@ -46,8 +46,22 @@ export function usePocketbaseClient(collection: string) {
       })
 
       items.splice(0, items.length, ...res)
-    } catch (err) {
-      error.value = err
+    } catch (err: unknown) {
+      if (err instanceof ClientResponseError) {
+        if (err.status === 0) {
+          error.value = 'Start pocketbase server: `pocketbase serve`'
+          return
+        }
+
+        if (err.status === 403) {
+          error.value =
+            'Allow all public access to the collection rule set at `Collection > todos > API Rules`'
+          return
+        }
+        error.value = err.message
+      } else {
+        error.value = 'An unknown error occurred'
+      }
     } finally {
       isLoading.value = false
     }

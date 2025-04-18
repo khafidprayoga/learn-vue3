@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, watch, } from 'vue'
+import { onMounted, watch, ref } from 'vue'
 import { UpdateType, usePocketbaseClient } from './composables/usePocketbaseClient'
 
 import TodoItem from './components/TodoItem.vue'
@@ -9,7 +9,6 @@ import TodoCount from './components/TodoCount.vue'
 
 const {
   items: todos,
-  isLoading,
   error,
   totalItemsCount,
   totalItemsDone,
@@ -17,6 +16,7 @@ const {
   fetchAll, getCount, update, create, resetData } = usePocketbaseClient('todos')
 
 
+const isLoading = ref(true)
 watch(error, () => {
   // todo show error message
 })
@@ -28,11 +28,19 @@ watch(isLoading, () => {
 
 // const todosApis = reactive({})
 onMounted(async () => {
-  getCount().then(async () => {
+  // setTimeout(async () => {
+  isLoading.value = true
+  try {
+    await getCount()
+
     await fetchAll({
       filter: 'is_done = false'
     })
-  })
+
+  } finally {
+    isLoading.value = false
+  }
+  // }, 2000)
 })
 
 
@@ -56,7 +64,7 @@ const handleDone = async (id: string) => {
   <h1 class="text-2xl font-bold text-center mt-5 cursor-pointer" @dblclick="resetData">Todo List APP</h1>
   <div class="container">
     <AddTodo @add-todo="handleNewTodo" />
-    <TodoList :todos="todos">
+    <TodoList :todos="todos" :is-loading="isLoading" :active-count="totalItemsActive" :error="error">
       <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
     </TodoList>
     <TodoCount :count="totalItemsCount" :completedCount="totalItemsDone" :activeCount="totalItemsActive" />
