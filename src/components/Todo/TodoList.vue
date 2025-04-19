@@ -25,3 +25,11 @@ const props = defineProps<{
     </template>
   </ul>
 </template>
+
+<style scoped>
+@reference 'tailwindcss';
+
+.todo-list {
+  @apply flex flex-col gap-1 py-3 min-h-[300px];
+}
+</style>

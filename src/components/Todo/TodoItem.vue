@@ -44,6 +44,18 @@ const newTitle = ref(props.title)
 <style scoped>
 @reference "tailwindcss";
 
+.todo-item {
+  @apply flex flex-row justify-between px-5;
+}
+
+.todo-content {
+  @apply text-xl font-bold;
+}
+
+.todo-action {
+  @apply flex flex-row gap-5;
+}
+
 .btn:hover {
   cursor: pointer;
 }
