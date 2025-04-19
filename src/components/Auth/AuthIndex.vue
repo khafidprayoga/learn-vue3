@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
+import {
+  usePocketbaseClient
 
+} from '@/composables/usePocketbaseClient'
 import {
   FormControl,
   FormItem,
@@ -18,7 +20,7 @@ import { Input } from '@/components/ui/input'
 
 import { Loader2, Github } from 'lucide-vue-next'
 
-const isLoading = ref(false)
+const { isLoading, login, authStore } = usePocketbaseClient('users')
 
 const formSchema = toTypedSchema(z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -29,14 +31,18 @@ const form = useForm({
   validationSchema: formSchema,
 })
 
-const onSubmit = form.handleSubmit((values) => {
+const onSubmit = form.handleSubmit(async (values) => {
   isLoading.value = true
-  setTimeout(() => {
-    form.validate()
-    console.log(values)
+  try {
+    await login(values.email, values.password)
+
+    // todo set global state of isAuthenticated true and save the token in local storage
+    console.log(authStore)
+
+  } finally {
     form.resetForm()
     isLoading.value = false
-  }, 5000)
+  }
 })
 
 </script>
