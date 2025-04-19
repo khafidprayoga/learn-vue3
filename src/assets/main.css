@@ -3,10 +3,9 @@
 
 @custom-variant dark (&:is(.dark *));
 
-
-
-
-
+#app {
+    @apply my-5 lg:min-h-[700px];
+}
 
 @theme inline {
   --color-background: var(--background);
