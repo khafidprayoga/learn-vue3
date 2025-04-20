@@ -3,10 +3,12 @@ import { useForm } from 'vee-validate'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-import {
-  usePocketbaseClient
 
+import {
+  store,
+  usePocketbaseClient
 } from '@/composables/usePocketbaseClient'
+
 import {
   FormControl,
   FormItem,
@@ -20,7 +22,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 import { Loader2, Github } from 'lucide-vue-next'
-const { isLoading, login, authStore } = usePocketbaseClient('users')
+const { isLoading, login } = usePocketbaseClient('users')
 
 const formSchema = toTypedSchema(z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -35,9 +37,6 @@ const onSubmit = form.handleSubmit(async (values) => {
   try {
     await login(values.email, values.password)
 
-    // todo set global state of isAuthenticated true and save the token in local storage
-    console.log(authStore)
-
   } finally {
     form.resetForm()
     isLoading.value = false
@@ -45,18 +44,33 @@ const onSubmit = form.handleSubmit(async (values) => {
 })
 
 const { loginWithPopup,
+  user: auth0User,
   idTokenClaims: claims,
-  isLoading: isLoadingAuth0,
 } = useAuth0()
+
 const handleSocial = async () => {
-  isLoading.value = isLoadingAuth0.value
-  await loginWithPopup()
+  isLoading.value = true
+  try {
+    await loginWithPopup()
 
 
-  // todo save the data to local storage
-  console.log(claims.value)
+    console.log(auth0User.value)
+    store.save(claims.value!.__raw, {
+      avatar: claims.value!.picture,
+      collectionId: 'auth0',
+      collectionName: 'github',
+      created: claims.value!.created_at,
+      email: claims.value!.email,
+      id: new String(claims.value!.sub).split('1')[1],
+      name: claims.value!.name,
+      updated: claims.value!.updated_at,
+      verified: claims.value!.email_verified,
+    })
 
-  isLoading.value = false
+  } finally {
+    form.resetForm()
+    isLoading.value = false
+  }
 }
 
 </script>

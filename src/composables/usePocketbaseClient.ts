@@ -1,7 +1,9 @@
-import PocketBase, { ClientResponseError } from 'pocketbase'
+import PocketBase, { ClientResponseError, LocalAuthStore } from 'pocketbase'
 import { ref, reactive } from 'vue'
+import { AuthStoreKey } from '@/types/auth'
 
-const pb = new PocketBase('http://127.0.0.1:8090')
+export const store = new LocalAuthStore(AuthStoreKey)
+const pb = new PocketBase('http://127.0.0.1:8090', store)
 
 export enum UpdateType {
   Done,
