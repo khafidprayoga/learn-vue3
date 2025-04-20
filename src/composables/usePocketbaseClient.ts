@@ -3,6 +3,10 @@ import { ref, reactive } from 'vue'
 import { AuthStoreKey } from '@/types/auth'
 import { store as globalStore } from '@/store/store'
 
+interface Params {
+  filter: object | string
+}
+
 export const store = new LocalAuthStore(AuthStoreKey)
 export const pb = new PocketBase('http://127.0.0.1:8090', store)
 
@@ -60,7 +64,7 @@ export function usePocketbaseClient(collection: string) {
     }
   }
 
-  const fetchAll = async (params = {}) => {
+  const fetchAll = async (params: Params) => {
     isLoading.value = true
     error.value = null
 
