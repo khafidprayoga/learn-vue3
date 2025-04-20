@@ -8,11 +8,6 @@ export enum UpdateType {
   Edit,
 }
 
-interface AuthStore {
-  token: string | null
-  userId: string | null
-}
-
 export function usePocketbaseClient(collection: string) {
   const isLoading = ref(false)
   const error = ref<any>(null)
@@ -23,11 +18,6 @@ export function usePocketbaseClient(collection: string) {
   const totalItemsDone = ref(0)
   const totalItemsActive = ref(0)
 
-  const authStore = reactive<AuthStore>({
-    token: null,
-    userId: null,
-  })
-
   const login = async (email: string, password: string) => {
     isLoading.value = true
     error.value = null
@@ -35,13 +25,16 @@ export function usePocketbaseClient(collection: string) {
     try {
       const authData = await pb.collection('users').authWithPassword(email, password)
 
-      authStore.token = authData.token
-      authStore.userId = authData.record.id
+      pb.authStore.save(authData.token, authData.record)
     } catch (err) {
       error.value = err
     } finally {
       isLoading.value = false
     }
+  }
+
+  const logout = async () => {
+    pb.authStore.clear()
   }
 
   const getCount = async (params = {}) => {
@@ -174,7 +167,7 @@ export function usePocketbaseClient(collection: string) {
   }
 
   return {
-    authStore,
+    authStore: pb.authStore,
 
     isLoading,
     error,
@@ -187,7 +180,9 @@ export function usePocketbaseClient(collection: string) {
     update,
     resetData,
     getCount,
+
     login,
+    logout,
 
     totalItemsCount,
     totalItemsDone,

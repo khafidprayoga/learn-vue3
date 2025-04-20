@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
+import { useAuth0 } from '@auth0/auth0-vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 import {
@@ -19,14 +20,12 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 import { Loader2, Github } from 'lucide-vue-next'
-
 const { isLoading, login, authStore } = usePocketbaseClient('users')
 
 const formSchema = toTypedSchema(z.object({
   email: z.string().email({ message: 'Invalid email address' }),
   password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
 }))
-
 const form = useForm({
   validationSchema: formSchema,
 })
@@ -44,6 +43,21 @@ const onSubmit = form.handleSubmit(async (values) => {
     isLoading.value = false
   }
 })
+
+const { loginWithPopup,
+  idTokenClaims: claims,
+  isLoading: isLoadingAuth0,
+} = useAuth0()
+const handleSocial = async () => {
+  isLoading.value = isLoadingAuth0.value
+  await loginWithPopup()
+
+
+  // todo save the data to local storage
+  console.log(claims.value)
+
+  isLoading.value = false
+}
 
 </script>
 
@@ -87,7 +101,7 @@ const onSubmit = form.handleSubmit(async (values) => {
         </span>
       </div>
     </div>
-    <Button variant="outline" type="button" :disabled="isLoading">
+    <Button variant="outline" type="button" :disabled="isLoading" @click="handleSocial">
       <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
       <Github v-else class="mr-2 h-4 w-4" />
       GitHub
