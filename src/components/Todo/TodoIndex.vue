@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { UpdateType, usePocketbaseClient } from '@/composables/usePocketbaseClient'
+import { store, UpdateType, usePocketbaseClient, } from '@/composables/usePocketbaseClient'
 
 import TodoItem from './TodoItem.vue'
 import TodoList from './TodoList.vue'
@@ -13,28 +13,33 @@ const {
   totalItemsCount,
   totalItemsDone,
   totalItemsActive,
-  fetchAll, getCount, update, create } = usePocketbaseClient('todos')
+  fetchAll, getCount, update, create, resetData } = usePocketbaseClient('todos')
 const isLoading = ref(true)
 
 
 onMounted(async () => {
-  // setTimeout(async () => {
-  isLoading.value = true
-  try {
-    await getCount()
+  setTimeout(async () => {
+    isLoading.value = true
+    try {
+      await getCount()
 
-    await fetchAll({
-      filter: 'is_done = false'
-    })
+      await fetchAll({
+        filter: 'is_done = false'
+      })
 
-  } finally {
-    isLoading.value = false
-  }
-  // }, 2000)
+    } finally {
+      isLoading.value = false
+    }
+  }, 2000)
 })
 
 const handleNewTodo = async (title: string) => {
-  await create({ title, is_done: false })
+  if (title === 'reset') {
+    await resetData()
+    return
+  }
+
+  await create({ title, is_done: false, user_id: store.record?.id })
 }
 
 const handleEdit = async (id: string, newTitle: string) => {

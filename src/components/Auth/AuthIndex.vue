@@ -43,35 +43,35 @@ const onSubmit = form.handleSubmit(async (values) => {
   }
 })
 
-const { loginWithPopup,
-  user: auth0User,
-  idTokenClaims: claims,
-} = useAuth0()
+// const { loginWithPopup,
+//   user: auth0User,
+//   idTokenClaims: claims,
+// } = useAuth0()
 
-const handleSocial = async () => {
-  isLoading.value = true
-  try {
-    await loginWithPopup()
+// const handleSocial = async () => {
+//   isLoading.value = true
+//   try {
+//     await loginWithPopup()
 
 
-    console.log(auth0User.value)
-    store.save(claims.value!.__raw, {
-      avatar: claims.value!.picture,
-      collectionId: 'auth0',
-      collectionName: 'github',
-      created: claims.value!.created_at,
-      email: claims.value!.email,
-      id: new String(claims.value!.sub).split('1')[1],
-      name: claims.value!.name,
-      updated: claims.value!.updated_at,
-      verified: claims.value!.email_verified,
-    })
+//     console.log(auth0User.value)
+//     store.save(claims.value!.__raw, {
+//       avatar: claims.value!.picture,
+//       collectionId: 'auth0',
+//       collectionName: 'github',
+//       created: claims.value!.created_at,
+//       email: claims.value!.email,
+//       id: new String(claims.value!.sub).split('1')[1],
+//       name: claims.value!.name,
+//       updated: claims.value!.updated_at,
+//       verified: claims.value!.email_verified,
+//     })
 
-  } finally {
-    form.resetForm()
-    isLoading.value = false
-  }
-}
+//   } finally {
+//     form.resetForm()
+//     isLoading.value = false
+//   }
+// }
 
 </script>
 
@@ -105,7 +105,7 @@ const handleSocial = async () => {
         </Button>
       </div>
     </form>
-    <div class="relative">
+    <!-- <div class="relative">
       <div class="absolute inset-0 flex items-center">
         <span class="w-full border-t" />
       </div>
@@ -119,7 +119,7 @@ const handleSocial = async () => {
       <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
       <Github v-else class="mr-2 h-4 w-4" />
       GitHub
-    </Button>
+    </Button> -->
   </div>
 </template>
 

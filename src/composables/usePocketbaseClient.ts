@@ -1,9 +1,10 @@
 import PocketBase, { ClientResponseError, LocalAuthStore } from 'pocketbase'
 import { ref, reactive } from 'vue'
 import { AuthStoreKey } from '@/types/auth'
+import { store as globalStore } from '@/store/store'
 
 export const store = new LocalAuthStore(AuthStoreKey)
-const pb = new PocketBase('http://127.0.0.1:8090', store)
+export const pb = new PocketBase('http://127.0.0.1:8090', store)
 
 export enum UpdateType {
   Done,
@@ -28,6 +29,7 @@ export function usePocketbaseClient(collection: string) {
       const authData = await pb.collection('users').authWithPassword(email, password)
 
       pb.authStore.save(authData.token, authData.record)
+      globalStore.isAuthenticated = pb.authStore.isValid
     } catch (err) {
       error.value = err
     } finally {
@@ -39,13 +41,13 @@ export function usePocketbaseClient(collection: string) {
     pb.authStore.clear()
   }
 
-  const getCount = async (params = {}) => {
+  const getCount = async () => {
     isLoading.value = true
     error.value = null
 
     try {
       const res = await pb.collection(collection).getFullList({
-        ...params,
+        filter: pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
       })
 
       totalItemsCount.value = res.length
@@ -62,10 +64,15 @@ export function usePocketbaseClient(collection: string) {
     isLoading.value = true
     error.value = null
 
+    const reqParam = {
+      ...params,
+      filter: params.filter
+        ? pb.filter(`${params.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
+        : pb.filter(`user_id = ${store.record?.id}`),
+    }
+
     try {
-      const res = await pb.collection(collection).getFullList({
-        ...params,
-      })
+      const res = await pb.collection(collection).getFullList(reqParam)
 
       items.splice(0, items.length, ...res)
     } catch (err: unknown) {
