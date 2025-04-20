@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { watch } from 'vue'
 import { useForm } from 'vee-validate'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -15,6 +16,7 @@ import {
   FormLabel,
   FormMessage,
   FormField,
+
 } from "@/components/ui/form"
 
 import { cn } from '@/lib/utils'
@@ -22,7 +24,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 import { Loader2, Github } from 'lucide-vue-next'
-const { isLoading, login } = usePocketbaseClient('users')
+const { isLoading, login, error } = usePocketbaseClient('users')
 
 const formSchema = toTypedSchema(z.object({
   email: z.string().email({ message: 'Invalid email address' }),
@@ -32,13 +34,24 @@ const form = useForm({
   validationSchema: formSchema,
 })
 
+watch(() => form.values, () => {
+  if (error.value != null) {
+    // reset form error when user change input
+    error.value = null
+    return
+  }
+}, { deep: true })
 const onSubmit = form.handleSubmit(async (values) => {
   isLoading.value = true
   try {
     await login(values.email, values.password)
 
+
   } finally {
-    form.resetForm()
+    if (!error) {
+      form.resetForm()
+    }
+
     isLoading.value = false
   }
 })
@@ -99,6 +112,9 @@ const onSubmit = form.handleSubmit(async (values) => {
             <FormMessage />
           </FormItem>
         </FormField>
+        <template v-if="error">
+          <p class="text-red-500">{{ error.message }}</p>
+        </template>
         <Button type="submit" :disabled="isLoading">
           <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
           Sign In
