@@ -5,19 +5,9 @@ import { useAuth0 } from '@auth0/auth0-vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
-import {
-  store,
-  usePocketbaseClient
-} from '@/composables/usePocketbaseClient'
+import { store, usePocketbaseClient } from '@/composables/usePocketbaseClient'
 
-import {
-  FormControl,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormField,
-
-} from "@/components/ui/form"
+import { FormControl, FormItem, FormLabel, FormMessage, FormField } from '@/components/ui/form'
 
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
@@ -26,27 +16,31 @@ import { Input } from '@/components/ui/input'
 import { Loader2, Github } from 'lucide-vue-next'
 const { isLoading, login, error } = usePocketbaseClient('users')
 
-const formSchema = toTypedSchema(z.object({
-  email: z.string().email({ message: 'Invalid email address' }),
-  password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
-}))
+const formSchema = toTypedSchema(
+  z.object({
+    email: z.string().email({ message: 'Invalid email address' }),
+    password: z.string().min(8, { message: 'Password must be at least 8 characters long' }),
+  }),
+)
 const form = useForm({
   validationSchema: formSchema,
 })
 
-watch(() => form.values, () => {
-  if (error.value != null) {
-    // reset form error when user change input
-    error.value = null
-    return
-  }
-}, { deep: true })
+watch(
+  () => form.values,
+  () => {
+    if (error.value != null) {
+      // reset form error when user change input
+      error.value = null
+      return
+    }
+  },
+  { deep: true },
+)
 const onSubmit = form.handleSubmit(async (values) => {
   isLoading.value = true
   try {
     await login(values.email, values.password)
-
-
   } finally {
     if (!error) {
       form.resetForm()
@@ -66,7 +60,6 @@ const onSubmit = form.handleSubmit(async (values) => {
 //   try {
 //     await loginWithPopup()
 
-
 //     console.log(auth0User.value)
 //     store.save(claims.value!.__raw, {
 //       avatar: claims.value!.picture,
@@ -85,19 +78,26 @@ const onSubmit = form.handleSubmit(async (values) => {
 //     isLoading.value = false
 //   }
 // }
-
 </script>
 
 <template>
   <div :class="cn('grid gap-6', $attrs.class ?? '')" class="auth-container">
     <form @submit="onSubmit">
       <div class="grid gap-2">
-        <FormField v-slot="{ field }" name="email" class="grid gap-1 ">
+        <FormField v-slot="{ field }" name="email" class="grid gap-1">
           <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input type="email" placeholder="acme@example.com" v-bind="field" auto-capitalize="none"
-                auto-complete="email" auto-correct="off" :disabled="isLoading" class="email-input" />
+              <Input
+                type="email"
+                placeholder="acme@example.com"
+                v-bind="field"
+                auto-capitalize="none"
+                auto-complete="email"
+                auto-correct="off"
+                :disabled="isLoading"
+                class="email-input"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -106,8 +106,16 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormItem>
             <FormLabel>Password</FormLabel>
             <FormControl>
-              <Input type="password" v-bind="field" placeholder="supersecret" auto-capitalize="none"
-                auto-complete="password" auto-correct="off" :disabled="isLoading" class="password-input" />
+              <Input
+                type="password"
+                v-bind="field"
+                placeholder="supersecret"
+                auto-capitalize="none"
+                auto-complete="password"
+                auto-correct="off"
+                :disabled="isLoading"
+                class="password-input"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>

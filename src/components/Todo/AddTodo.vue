@@ -23,7 +23,6 @@ const onSubmit = form.handleSubmit((values) => {
   form.validate()
   emit('addTodo', values.title)
   form.resetForm()
-
 })
 const emit = defineEmits<{
   (e: 'addTodo', title: string): void
@@ -47,7 +46,7 @@ const isDisabled = computed(() => {
           <FormMessage />
         </FormItem>
       </FormField>
-      <Button type="submit" class="mt-3 " :disabled="isDisabled"> Submit </Button>
+      <Button type="submit" class="mt-3" :disabled="isDisabled"> Submit </Button>
     </form>
   </div>
 </template>

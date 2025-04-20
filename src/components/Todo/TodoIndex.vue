@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import { store, UpdateType, usePocketbaseClient, } from '@/composables/usePocketbaseClient'
+import { store, UpdateType, usePocketbaseClient } from '@/composables/usePocketbaseClient'
 
 import TodoItem from './TodoItem.vue'
 import TodoList from './TodoList.vue'
@@ -13,9 +13,13 @@ const {
   totalItemsCount,
   totalItemsDone,
   totalItemsActive,
-  fetchAll, getCount, update, create, resetData } = usePocketbaseClient('todos')
+  fetchAll,
+  getCount,
+  update,
+  create,
+  resetData,
+} = usePocketbaseClient('todos')
 const isLoading = ref(true)
-
 
 onMounted(async () => {
   setTimeout(async () => {
@@ -24,9 +28,8 @@ onMounted(async () => {
       await getCount()
 
       await fetchAll({
-        filter: 'is_done = false'
+        filter: 'is_done = false',
       })
-
     } finally {
       isLoading.value = false
     }
@@ -56,7 +59,17 @@ const handleDone = async (id: string) => {
 <template>
   <AddTodo @add-todo="handleNewTodo" />
   <TodoList :todos="todos" :is-loading="isLoading" :active-count="totalItemsActive" :error="error">
-    <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
+    <TodoItem
+      v-for="todo in todos"
+      :key="todo.id"
+      v-bind="todo"
+      @done="handleDone"
+      @edit="handleEdit"
+    />
   </TodoList>
-  <TodoCount :count="totalItemsCount" :completedCount="totalItemsDone" :activeCount="totalItemsActive" />
+  <TodoCount
+    :count="totalItemsCount"
+    :completedCount="totalItemsDone"
+    :activeCount="totalItemsActive"
+  />
 </template>

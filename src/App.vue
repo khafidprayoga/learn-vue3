@@ -14,7 +14,6 @@ const logout = () => {
   authStore.clear()
   globalStore.isAuthenticated = false
 }
-
 </script>
 
 <template>
@@ -22,9 +21,7 @@ const logout = () => {
     <span v-if="globalStore.isAuthenticated" @dblclick="logout">
       Hello, {{ authStore.record?.name }}!
     </span>
-    <span v-else>
-      Todo List App
-    </span>
+    <span v-else> Todo List App </span>
   </h1>
 
   <div class="container">
