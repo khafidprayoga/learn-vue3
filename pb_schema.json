@@ -47,6 +47,19 @@
         "type": "bool"
       },
       {
+        "cascadeDelete": false,
+        "collectionId": "_pb_users_auth_",
+        "hidden": false,
+        "id": "relation2809058197",
+        "maxSelect": 1,
+        "minSelect": 0,
+        "name": "user_id",
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "relation"
+      },
+      {
         "hidden": false,
         "id": "autodate2990389176",
         "name": "created_at",
@@ -68,7 +81,8 @@
       }
     ],
     "indexes": [
-      "CREATE INDEX `idx_GWPz085YKS` ON `todos` (`is_done`)"
+      "CREATE INDEX `idx_GWPz085YKS` ON `todos` (`is_done`)",
+      "CREATE INDEX `idx_O8ks5s3bLv` ON `todos` (`user_id`)"
     ],
     "system": false
   }
