@@ -1,7 +1,7 @@
 import PocketBase, { ClientResponseError, LocalAuthStore } from 'pocketbase'
 import { ref, reactive } from 'vue'
 import { AuthStoreKey } from '@/types/auth'
-import { store as globalStore } from '@/store/store'
+import { AuthProvider, store as globalStore } from '@/store/store'
 
 interface Params {
   filter:  string
@@ -54,9 +54,19 @@ export function usePocketbaseClient(collection: string) {
 
     const reqParam = {
       ...params,
-      filter: params.filter
-        ? pb.filter(`${params.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
-        : pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
+    }
+
+    switch (globalStore.authProvider) {
+      case AuthProvider.Pocketbase:
+        reqParam.filter = reqParam.filter
+          ? pb.filter(`${reqParam.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
+          : pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id })
+        break
+      case AuthProvider.Auth0:
+        reqParam.filter = reqParam.filter
+          ? pb.filter(`${reqParam.filter} && social_id = {:social_id}`, { social_id: store.record?.id })
+          : pb.filter(`social_id = {:social_id}`, { social_id: store.record?.id })
+        break
     }
 
     try {
@@ -78,9 +88,19 @@ export function usePocketbaseClient(collection: string) {
 
     const reqParam = {
       ...params,
-      filter: params.filter
-        ? pb.filter(`${params.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
-        : pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
+    }
+
+    switch (globalStore.authProvider) {
+      case AuthProvider.Pocketbase:
+        reqParam.filter = reqParam.filter
+          ? pb.filter(`${reqParam.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
+          : pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id })
+        break
+      case AuthProvider.Auth0:
+        reqParam.filter = reqParam.filter
+          ? pb.filter(`${reqParam.filter} && social_id = {:social_id}`, { social_id: store.record?.id })
+          : pb.filter(`social_id = {:social_id}`, { social_id: store.record?.id })
+        break
     }
 
     try {
