@@ -34,6 +34,6 @@ const logout = () => {
 @reference 'tailwindcss';
 
 .container {
-  @apply mx-auto mt-15;
+  @apply mx-auto mt-15 px-5;
 }
 </style>

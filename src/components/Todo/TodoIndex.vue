@@ -176,11 +176,11 @@ const isFirstLogin = computed(() => {
 }
 
 .tabs {
-  @apply flex flex-row gap-3 font-semibold;
+  @apply flex flex-row font-semibold overflow-x-auto;
 }
 
 .tabs button {
-  @apply rounded-none;
+  @apply rounded-none border-b-5 border-gray-500;
 }
 
 .tabs button:hover {
@@ -188,7 +188,7 @@ const isFirstLogin = computed(() => {
 }
 
 .tabs> :not(.active) {
-  @apply bg-zinc-300 px-5 py-1 text-black;
+  @apply bg-zinc-300 px-5 py-1 text-black border-transparent;
 }
 
 .tab-content {
