@@ -2,11 +2,14 @@
 import { defineProps, ref } from 'vue'
 import Button from '@/components/ui/button/Button.vue'
 import Input from '@/components/ui/input/Input.vue'
+import type { Todo } from '@/types/todo'
+import { formatDistanceToNow } from 'date-fns'
+interface TodoItemProps extends Todo {
+  showAction: boolean
+  strikeThrough: boolean
+}
 
-const props = defineProps<{
-  id: string
-  title: string
-}>()
+const props = defineProps<TodoItemProps>()
 
 const emit = defineEmits<{
   (e: 'done', id: string): void
@@ -33,8 +36,11 @@ const newTitle = ref(props.title)
 <template>
   <li class="todo-item">
     <Input v-if="isEdit" v-model="newTitle" @keyup.enter="handleSave" class="edit-input" />
-    <span v-else class="todo-content">{{ props.title }}</span>
-    <div class="todo-action">
+    <span v-else class="todo-content" :class="{'line-through': strikeThrough}">{{ props.title }}</span>
+    <span v-if="strikeThrough">
+       finished {{ formatDistanceToNow(new Date(props.updated_at), { addSuffix: true }) }}
+    </span>
+    <div class="todo-action" v-if="props.showAction">
       <Button variant="outline" @click="handleEdit" class="btn" v-if="!isEdit">Edit</Button>
       <Button variant="outline" @click="handleDone" class="btn">Done</Button>
     </div>
@@ -45,11 +51,11 @@ const newTitle = ref(props.title)
 @reference "tailwindcss";
 
 .todo-item {
-  @apply flex flex-row justify-between px-5;
+  @apply flex flex-row justify-between;
 }
 
 .todo-content {
-  @apply text-xl font-bold;
+  @apply text-xl font-bold my-1 ;
 }
 
 .todo-action {

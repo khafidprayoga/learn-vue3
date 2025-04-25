@@ -21,6 +21,7 @@
     "@vueuse/core": "^13.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
+    "date-fns": "^4.1.0",
     "lucide-vue-next": "^0.488.0",
     "pocketbase": "^0.25.2",
     "reka-ui": "^2.2.0",

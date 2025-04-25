@@ -4,7 +4,7 @@ import { AuthStoreKey } from '@/types/auth'
 import { store as globalStore } from '@/store/store'
 
 interface Params {
-  filter: object | string
+  filter:  string
 }
 
 export const store = new LocalAuthStore(AuthStoreKey)
@@ -47,14 +47,20 @@ export function usePocketbaseClient(collection: string) {
     pb.authStore.clear()
   }
 
-  const getCount = async () => {
+  const getCount = async (params: Params) => {
     isLoading.value = true
     error.value = null
 
+
+    const reqParam = {
+      ...params,
+      filter: params.filter !=null
+        ? pb.filter(`${params.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
+        : pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
+    }
+
     try {
-      const res = await pb.collection(collection).getFullList({
-        filter: pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
-      })
+      const res = await pb.collection(collection).getFullList(reqParam)
 
       count.all = res.length
       count.done = res.filter((item) => item.is_done).length
@@ -74,7 +80,7 @@ export function usePocketbaseClient(collection: string) {
       ...params,
       filter: params.filter
         ? pb.filter(`${params.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
-        : pb.filter(`user_id = ${store.record?.id}`),
+        : pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
     }
 
     try {
