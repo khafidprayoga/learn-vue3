@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import { watch } from 'vue'
+import { watch, ref } from 'vue'
 import { useForm } from 'vee-validate'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
 import { store, usePocketbaseClient } from '@/composables/usePocketbaseClient'
-
+import { store as globalStore , AuthProvider} from '@/store/store'
 import { FormControl, FormItem, FormLabel, FormMessage, FormField } from '@/components/ui/form'
 
 import { cn } from '@/lib/utils'
@@ -43,6 +43,7 @@ const onSubmit = form.handleSubmit(async (values) => {
     await login(values.email, values.password)
   } finally {
     if (!error) {
+      globalStore.authProvider = AuthProvider.Pocketbase
       form.resetForm()
     }
 
@@ -50,34 +51,37 @@ const onSubmit = form.handleSubmit(async (values) => {
   }
 })
 
-// const { loginWithPopup,
-//   user: auth0User,
-//   idTokenClaims: claims,
-// } = useAuth0()
+const { loginWithPopup,
+  idTokenClaims: claims,
+} = useAuth0()
 
-// const handleSocial = async () => {
-//   isLoading.value = true
-//   try {
-//     await loginWithPopup()
+const socialLoading = ref(false)
+const handleSocial = async () => {
+  isLoading.value = true
+  socialLoading.value = true
 
-//     console.log(auth0User.value)
-//     store.save(claims.value!.__raw, {
-//       avatar: claims.value!.picture,
-//       collectionId: 'auth0',
-//       collectionName: 'github',
-//       created: claims.value!.created_at,
-//       email: claims.value!.email,
-//       id: new String(claims.value!.sub).split('1')[1],
-//       name: claims.value!.name,
-//       updated: claims.value!.updated_at,
-//       verified: claims.value!.email_verified,
-//     })
+  try {
+    await loginWithPopup()
 
-//   } finally {
-//     form.resetForm()
-//     isLoading.value = false
-//   }
-// }
+    store.save(claims.value!.__raw, {
+      avatar: claims.value!.picture,
+      collectionId: 'auth0',
+      collectionName: 'github',
+      created: claims.value!.created_at,
+      email: claims.value!.email,
+      id: claims.value!.sub,
+      name: claims.value!.name,
+      updated: claims.value!.updated_at,
+      verified: claims.value!.email_verified,
+    })
+
+    globalStore.isAuthenticated = true
+    globalStore.authProvider = AuthProvider.Auth0
+  } finally {
+    isLoading.value = false
+    socialLoading.value = false
+  }
+}
 </script>
 
 <template>
@@ -88,16 +92,8 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input
-                type="email"
-                placeholder="acme@example.com"
-                v-bind="field"
-                auto-capitalize="none"
-                auto-complete="email"
-                auto-correct="off"
-                :disabled="isLoading"
-                class="email-input"
-              />
+              <Input type="email" placeholder="acme@example.com" v-bind="field" auto-capitalize="none"
+                auto-complete="email" auto-correct="off" :disabled="isLoading" class="email-input" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -106,16 +102,8 @@ const onSubmit = form.handleSubmit(async (values) => {
           <FormItem>
             <FormLabel>Password</FormLabel>
             <FormControl>
-              <Input
-                type="password"
-                v-bind="field"
-                placeholder="supersecret"
-                auto-capitalize="none"
-                auto-complete="password"
-                auto-correct="off"
-                :disabled="isLoading"
-                class="password-input"
-              />
+              <Input type="password" v-bind="field" placeholder="supersecret" auto-capitalize="none"
+                auto-complete="password" auto-correct="off" :disabled="isLoading" class="password-input" />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -124,12 +112,12 @@ const onSubmit = form.handleSubmit(async (values) => {
           <p class="text-red-500">{{ error.message }}</p>
         </template>
         <Button type="submit" :disabled="isLoading">
-          <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
+          <Loader2 v-if="isLoading && !socialLoading" class="mr-2 h-4 w-4 animate-spin" />
           Sign In
         </Button>
       </div>
     </form>
-    <!-- <div class="relative">
+    <div class="relative">
       <div class="absolute inset-0 flex items-center">
         <span class="w-full border-t" />
       </div>
@@ -143,7 +131,7 @@ const onSubmit = form.handleSubmit(async (values) => {
       <Loader2 v-if="isLoading" class="mr-2 h-4 w-4 animate-spin" />
       <Github v-else class="mr-2 h-4 w-4" />
       GitHub
-    </Button> -->
+    </Button>
   </div>
 </template>
 
