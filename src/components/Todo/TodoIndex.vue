@@ -10,9 +10,7 @@ import TodoCount from './TodoCount.vue'
 const {
   items: todos,
   error,
-  totalItemsCount,
-  totalItemsDone,
-  totalItemsActive,
+  count,
   fetchAll,
   getCount,
   update,
@@ -33,7 +31,7 @@ onMounted(async () => {
     } finally {
       isLoading.value = false
     }
-  }, 2000)
+  }, 500)
 })
 
 const handleNewTodo = async (title: string) => {
@@ -58,18 +56,14 @@ const handleDone = async (id: string) => {
 
 <template>
   <AddTodo @add-todo="handleNewTodo" />
-  <TodoList :todos="todos" :is-loading="isLoading" :active-count="totalItemsActive" :error="error">
-    <TodoItem
-      v-for="todo in todos"
-      :key="todo.id"
-      v-bind="todo"
-      @done="handleDone"
-      @edit="handleEdit"
-    />
+  <!--
+  todo load default all completed todos and count
+  todo add current tab
+  todo adjust count based on current tab condition
+  -->
+
+  <TodoList :todos="todos" :is-loading="isLoading" :active-count="count.active" :error="error">
+    <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit" />
   </TodoList>
-  <TodoCount
-    :count="totalItemsCount"
-    :completedCount="totalItemsDone"
-    :activeCount="totalItemsActive"
-  />
+  <TodoCount :count="count.all" :completedCount="count.done" :activeCount="count.active" />
 </template>

@@ -21,9 +21,11 @@ export function usePocketbaseClient(collection: string) {
   const items = reactive<any[]>([])
   const item = ref<any>(null)
 
-  const totalItemsCount = ref(0)
-  const totalItemsDone = ref(0)
-  const totalItemsActive = ref(0)
+  const count = reactive({
+    all: 0,
+    done: 0,
+    active: 0,
+  })
 
   const login = async (email: string, password: string) => {
     isLoading.value = true
@@ -54,9 +56,9 @@ export function usePocketbaseClient(collection: string) {
         filter: pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
       })
 
-      totalItemsCount.value = res.length
-      totalItemsDone.value = res.filter((item) => item.is_done).length
-      totalItemsActive.value = res.filter((item) => !item.is_done).length
+      count.all = res.length
+      count.done = res.filter((item) => item.is_done).length
+      count.active = res.filter((item) => !item.is_done).length
     } catch (err) {
       error.value = err
     } finally {
@@ -185,6 +187,7 @@ export function usePocketbaseClient(collection: string) {
     isLoading,
     error,
     items,
+    count,
     item,
 
     fetchAll,
@@ -196,9 +199,5 @@ export function usePocketbaseClient(collection: string) {
 
     login,
     logout,
-
-    totalItemsCount,
-    totalItemsDone,
-    totalItemsActive,
   }
 }
