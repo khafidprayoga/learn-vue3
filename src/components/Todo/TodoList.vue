@@ -4,8 +4,10 @@ import type { Todo } from '@/types/todo'
 const props = defineProps<{
   todos: Todo[]
   isLoading: boolean
-  activeCount: number
+  count: number
   error: string | null
+  activeTab: string
+  isFirstLogin: boolean
 }>()
 </script>
 
@@ -17,11 +19,17 @@ const props = defineProps<{
     <template v-else-if="props.error">
       <span class="text-lg font-mono text-center text-red-500">Error: {{ props.error }}</span>
     </template>
-    <template v-else-if="activeCount === 0">
+    <template v-else-if="props.todos.length > 0">
+      <slot />
+    </template>
+    <template v-else-if="props.isFirstLogin">
+      <span class="text-lg font-mono text-center">Create your first task! with ALT+K on windows or CMD+K on mac</span>
+    </template>
+    <template v-else-if="props.count === 0 && props.activeTab !== 'completed'">
       <span class="text-lg font-mono text-center">All task done 👍</span>
     </template>
     <template v-else>
-      <slot />
+      <span class="text-lg font-mono text-center">Mark as done at least one activity task</span>
     </template>
   </ul>
 </template>

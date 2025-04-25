@@ -47,14 +47,14 @@ export function usePocketbaseClient(collection: string) {
     pb.authStore.clear()
   }
 
-  const getCount = async (params: Params) => {
+  const getCount = async (params: Params = { filter: '' }) => {
     isLoading.value = true
     error.value = null
 
 
     const reqParam = {
       ...params,
-      filter: params.filter !=null
+      filter: params.filter
         ? pb.filter(`${params.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
         : pb.filter(`user_id = {:user_id}`, { user_id: store.record?.id }),
     }
@@ -72,7 +72,7 @@ export function usePocketbaseClient(collection: string) {
     }
   }
 
-  const fetchAll = async (params: Params) => {
+  const fetchAll = async (params: Params = { filter: '' }) => {
     isLoading.value = true
     error.value = null
 
