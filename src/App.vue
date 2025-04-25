@@ -5,6 +5,7 @@ import { store as authStore } from '@/composables/usePocketbaseClient'
 
 import Auth from '@/components/Auth/AuthIndex.vue'
 import Todo from '@/components/Todo/TodoIndex.vue'
+import { useAuth0 } from '@auth0/auth0-vue'
 
 onMounted(() => {
   globalStore.isAuthenticated = authStore.isValid
@@ -20,9 +21,22 @@ onMounted(() => {
   }
 })
 
+const { logout: auth0Logout } = useAuth0()
 const logout = () => {
+  // remove auth0 token on db
+  if (globalStore.authProvider === AuthProvider.Auth0) {
+    auth0Logout({
+      openUrl: false,
+    }).then(()=>{
+      authStore.clear()
+      globalStore.isAuthenticated = false
+    })
+    return
+  }
+
   authStore.clear()
   globalStore.isAuthenticated = false
+
 }
 </script>
 
