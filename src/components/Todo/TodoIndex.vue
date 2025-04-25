@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, computed } from 'vue'
 import { pb, store, UpdateType, usePocketbaseClient } from '@/composables/usePocketbaseClient'
+import {store as globalStore, AuthProvider} from '@/store/store'
 
 import { Button } from '@/components/ui/button'
 import TodoItem from './TodoItem.vue'
 import TodoList from './TodoList.vue'
 import AddTodo from './AddTodo.vue'
+import type { Todo } from '@/types/todo'
 
 const {
   items: todos,
@@ -73,7 +75,23 @@ const handleNewTodo = async (title: string) => {
     return
   }
 
-  await create({ title, is_done: false, user_id: store.record?.id })
+  const req: Todo = {
+    title: title,
+    is_done: false,
+  }
+
+  console.log(globalStore.authProvider)
+
+  switch (globalStore.authProvider) {
+    case AuthProvider.Auth0:
+      req.social_id = store.record?.id
+      break
+    case AuthProvider.Pocketbase:
+      req.user_id = store.record?.id
+      break
+  }
+
+  await create(req)
 }
 
 const showAddTodo = ref(false)

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { onMounted } from 'vue'
-import { store as globalStore } from '@/store/store'
+import { store as globalStore, AuthProvider } from '@/store/store'
 import { store as authStore } from '@/composables/usePocketbaseClient'
 
 import Auth from '@/components/Auth/AuthIndex.vue'
@@ -8,6 +8,16 @@ import Todo from '@/components/Todo/TodoIndex.vue'
 
 onMounted(() => {
   globalStore.isAuthenticated = authStore.isValid
+  const name = authStore.record?.collectionName
+  if (name) {
+    switch (name) {
+      case 'github':
+        globalStore.authProvider = AuthProvider.Auth0
+        break
+      default:
+        globalStore.authProvider = AuthProvider.Pocketbase
+    }
+  }
 })
 
 const logout = () => {
