@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useForm } from 'vee-validate'
-import { computed } from 'vue'
+import { computed, ref } from 'vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
@@ -14,23 +14,30 @@ const formSchema = toTypedSchema(
     title: z.string().min(3, { message: 'Title must be at least 3 characters long' }),
   }),
 )
-
+const isLoading = ref(false)
 const form = useForm({
   validationSchema: formSchema,
 })
 
 const onSubmit = form.handleSubmit((values) => {
-  form.validate()
-  emit('addTodo', values.title)
-  form.resetForm()
+  try {
+    isLoading.value = true
+    form.validate()
+
+    emit('addTodo', values.title)
+    form.resetForm()
+  } finally {
+    isLoading.value = false
+  }
 })
 const emit = defineEmits<{
   (e: 'addTodo', title: string): void
 }>()
 
 const isDisabled = computed(() => {
-  return !!form.errors.value.title?.length
+  return !form.isFieldValid('title') || isLoading.value
 })
+
 </script>
 
 <template>

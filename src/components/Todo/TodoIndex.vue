@@ -14,14 +14,15 @@ import { useTodoist } from '@/composables/useTodoist'
 
 const {
   update,
-  create,
   resetData,
 } = usePocketbaseClient('todos')
 
 const {
   count,
   todos,
+
   getTasks,
+  addTask,
 } = useTodoist()
 
 
@@ -34,7 +35,9 @@ const currentTab = ref('active')
 
 const { isLoading, error, data, refetch } = useQuery({
   queryKey: ['tasks', currentTab],
-  queryFn: ({ queryKey }) => getTasks(queryKey[1])
+  queryFn: ({ queryKey }) => getTasks(queryKey[1]),
+  refetchOnMount: true,
+  refetchOnWindowFocus: true,
 })
 
 watch(data, (newData) => {
@@ -105,7 +108,6 @@ const handleNewTodo = async (title: string) => {
     is_done: false,
   }
 
-  console.log(globalStore.authProvider)
 
   switch (globalStore.authProvider) {
     case AuthProvider.Auth0:
@@ -116,7 +118,7 @@ const handleNewTodo = async (title: string) => {
       break
   }
 
-  await create(req)
+  await addTask(req)
 }
 
 const showAddTodo = ref(false)
@@ -194,7 +196,7 @@ const isFirstLogin = computed(() => {
     <TodoList :todos="todos" :is-loading="isLoading" :count="getTodoCount" :error="error" :active-tab="currentTab"
       :is-first-login="isFirstLogin">
       <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit"
-        :show-action="currentTab === 'active'" :strike-through="currentTab === 'all' && todo.is_done" />
+        :show-action="currentTab === 'active'" :strike-through="currentTab === 'completed' && todo.is_done" />
     </TodoList>
   </div>
 </template>

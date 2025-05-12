@@ -20,15 +20,28 @@ export const useTodoist = () => {
   const projectId = store.record?.todoist.projectId
   const endpoint = new URL(API_URL)
 
-  endpoint.searchParams.set('project_id', projectId)
+  const addTask = async (task: Todo) => {
+    await fetch(endpoint.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        content: task.title,
+        project_id: projectId,
+      }),
+    })
 
-  const addTask = async () => {}
+    queryClient.invalidateQueries({ queryKey: ['tasks', 'active'] })
+  }
 
   const updateTask = async () => {}
 
   const deleteTask = async () => {}
 
   const getTasks = async (tabId: string) => {
+    endpoint.searchParams.set('project_id', projectId)
     let url = endpoint.toString()
 
     if (tabId === 'completed') {
@@ -51,5 +64,6 @@ export const useTodoist = () => {
     count,
 
     getTasks,
+    addTask,
   }
 }
