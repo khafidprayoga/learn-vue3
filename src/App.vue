@@ -60,6 +60,6 @@ const logout = () => {
 @reference 'tailwindcss';
 
 .container {
-  @apply mx-auto mt-15 px-5;
+  @apply mx-auto mt-15 px-5 bg-zinc-100 border-t-5 border-zinc-200 rounded-lg;
 }
 </style>

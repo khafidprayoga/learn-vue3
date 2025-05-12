@@ -36,13 +36,29 @@ export const useTodoist = () => {
     queryClient.invalidateQueries({ queryKey: ['tasks', 'active'] })
   }
 
-  const updateTask = async () => {}
+  const updateTask = async (task: Todo) => {
+    const url = new URL(`${endpoint}/${task.id}`)
+
+    await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${apiKey}`,
+      },
+      body: JSON.stringify({
+        content: task.title,
+      }),
+    })
+
+    queryClient.invalidateQueries({ queryKey: ['tasks', 'active'] })
+  }
 
   const deleteTask = async () => {}
 
   const getTasks = async (tabId: string) => {
-    endpoint.searchParams.set('project_id', projectId)
-    let url = endpoint.toString()
+    const baseUrl = new URL(endpoint)
+    baseUrl.searchParams.set('project_id', projectId)
+    let url = baseUrl.toString()
 
     if (tabId === 'completed') {
       const reqUrl = new URL('https://api.todoist.com/sync/v9/completed/get_all')
@@ -65,5 +81,6 @@ export const useTodoist = () => {
 
     getTasks,
     addTask,
+    updateTask,
   }
 }

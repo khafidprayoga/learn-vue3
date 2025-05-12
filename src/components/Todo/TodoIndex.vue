@@ -13,7 +13,6 @@ import type { Todo } from '@/types/todo'
 import { useTodoist } from '@/composables/useTodoist'
 
 const {
-  update,
   resetData,
 } = usePocketbaseClient('todos')
 
@@ -23,6 +22,7 @@ const {
 
   getTasks,
   addTask,
+  updateTask,
 } = useTodoist()
 
 
@@ -38,6 +38,7 @@ const { isLoading, error, data, refetch } = useQuery({
   queryFn: ({ queryKey }) => getTasks(queryKey[1]),
   refetchOnMount: true,
   refetchOnWindowFocus: true,
+  refetchOnReconnect: true,
 })
 
 watch(data, (newData) => {
@@ -123,14 +124,17 @@ const handleNewTodo = async (title: string) => {
 
 const showAddTodo = ref(false)
 const handleEdit = async (id: string, newTitle: string) => {
-  await update(id.toString(), { title: newTitle })
+  await updateTask({
+    id,
+    title: newTitle,
+  })
 }
 
 const handleDone = async (id: string) => {
-  update(id.toString(), { is_done: true }, UpdateType.Done).then(() => {
-    count.active--
-    count.done++
-  })
+  // update(id.toString(), { is_done: true }, UpdateType.Done).then(() => {
+  //   count.active--
+  //   count.done++
+  // })
 
 }
 
@@ -151,7 +155,7 @@ const changeTab = async (tabId: string) => {
   if (!tab) return
 
   currentTab.value = tabId
-
+  showAddTodo.value = false
   refetch()
 
 }
@@ -213,7 +217,7 @@ const isFirstLogin = computed(() => {
 }
 
 .tabs button {
-  @apply rounded-none border-b-5 border-gray-500;
+  @apply rounded-none border-b-5 border-gray-500 ;
 }
 
 .tabs button:hover {
@@ -221,7 +225,7 @@ const isFirstLogin = computed(() => {
 }
 
 .tabs> :not(.active) {
-  @apply bg-zinc-300 px-5 py-1 text-black border-transparent;
+  @apply bg-zinc-300  text-black border-transparent px-5  py-3;
 }
 
 .tab-content {
