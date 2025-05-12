@@ -2,6 +2,7 @@
 import { onMounted } from 'vue'
 import { store as globalStore, AuthProvider } from '@/store/store'
 import { store as authStore } from '@/composables/usePocketbaseClient'
+import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
 
 import Auth from '@/components/Auth/AuthIndex.vue'
 import Todo from '@/components/Todo/TodoIndex.vue'
@@ -52,6 +53,7 @@ const logout = () => {
     <Auth v-if="!globalStore.isAuthenticated" />
     <Todo v-else />
   </div>
+  <VueQueryDevtools />
 </template>
 
 <style scoped>

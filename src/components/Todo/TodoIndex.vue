@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { onBeforeUnmount, onMounted, ref, computed } from 'vue'
+import { onBeforeUnmount, onMounted, ref, computed, watch } from 'vue'
+import { useQuery } from '@tanstack/vue-query'
 import { pb, store, UpdateType, usePocketbaseClient } from '@/composables/usePocketbaseClient'
-import {store as globalStore, AuthProvider} from '@/store/store'
+import { store as globalStore, AuthProvider } from '@/store/store'
 
 import { Button } from '@/components/ui/button'
 import TodoItem from './TodoItem.vue'
@@ -9,59 +10,83 @@ import TodoList from './TodoList.vue'
 import AddTodo from './AddTodo.vue'
 import type { Todo } from '@/types/todo'
 
+import { useTodoist } from '@/composables/useTodoist'
+
 const {
-  items: todos,
-  error,
-  count,
-  fetchAll,
-  getCount,
   update,
   create,
   resetData,
 } = usePocketbaseClient('todos')
 
-const isLoading = ref(true)
+const {
+  count,
+  todos,
+  getTasks,
+} = useTodoist()
+
 
 interface Tab {
   id: string
   label: string
-  filter: string
 }
 
-const dataSource = async (activeTab: Tab) => {
-  if (activeTab?.filter) {
-    await getCount()
+const currentTab = ref('active')
 
-    await fetchAll({
-      filter: activeTab.filter,
-    })
-  } else {
-    await getCount()
+const { isLoading, error, data, refetch } = useQuery({
+  queryKey: ['tasks', currentTab],
+  queryFn: ({ queryKey }) => getTasks(queryKey[1])
+})
 
-    await fetchAll()
+watch(data, (newData) => {
+  let parsedData = []
+
+  switch (currentTab.value) {
+    case 'active':
+      parsedData = newData.map((item: any) => ({
+        id: item.id,
+        title: item.content,
+        is_done: item.is_completed,
+        created_at: item.created_at,
+        updated_at: item.created_at,
+      }))
+      break
+
+    case 'completed':
+      parsedData = newData?.items.map((item: any) => ({
+        id: item.id,
+        title: item.content,
+        is_done: true,
+        updated_at: item.completed_at,
+      })) || []
+
+      break
   }
-}
+
+
+
+  switch (currentTab.value) {
+    case 'active':
+      count.active = parsedData.length
+      break
+    case 'completed':
+      count.done = parsedData.length
+      break
+  }
+
+  todos.splice(0, todos.length, ...parsedData)
+})
+
+
+
 
 const handleKeyDown = (event: KeyboardEvent) => {
-  if ((event.altKey && event.key === 'k') && currentTab.value === "all") {
+  if ((event.altKey && event.key === 'k') && currentTab.value === "active") {
     showAddTodo.value = !showAddTodo.value
   }
 }
 
 onMounted(async () => {
   window.addEventListener('keydown', handleKeyDown)
-
-  // setTimeout(async () => {
-  isLoading.value = true
-  try {
-    const activeTab = tabs.find(tab => tab.id === currentTab.value)
-    if (!activeTab) return
-    await dataSource(activeTab)
-
-  } finally {
-    isLoading.value = false
-  }
-  // }, 500)
 })
 
 onBeforeUnmount(async () => {
@@ -109,41 +134,29 @@ const handleDone = async (id: string) => {
 
 const tabs = [
   {
-    id: 'all',
-    label: 'All Task',
-    filter: '',
-  },
-  {
     id: 'active',
     label: 'Active Task',
-    filter: pb.filter('is_done = false'),
   },
   {
     id: 'completed',
     label: 'Completed Task',
-    filter: pb.filter('is_done = true'),
   },
 ]
 
-const currentTab = ref('all')
 const changeTab = async (tabId: string) => {
-  currentTab.value = tabId
-  isLoading.value = true
 
-  try {
-    const tab = tabs.find(tab => tab.id === tabId)
-    if (!tab) return
-    await dataSource(tab)
-  } finally {
-    isLoading.value = false
-  }
+  const tab = tabs.find(tab => tab.id === tabId)
+  if (!tab) return
+
+  currentTab.value = tabId
+
+  refetch()
+
 }
 
 
 const getTabCount = (tab: Tab) => {
   switch (tab.id) {
-    case 'all':
-      return count.all
     case 'active':
       return count.active
     case 'completed':

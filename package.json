@@ -17,6 +17,8 @@
   "dependencies": {
     "@auth0/auth0-vue": "^2.4.0",
     "@tailwindcss/vite": "^4.1.4",
+    "@tanstack/vue-query": "^5.75.7",
+    "@tanstack/vue-query-devtools": "^5.75.7",
     "@vee-validate/zod": "^4.15.0",
     "@vueuse/core": "^13.1.0",
     "class-variance-authority": "^0.7.1",
