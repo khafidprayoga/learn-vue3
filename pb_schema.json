@@ -1,5 +1,93 @@
 [
   {
+    "id": "pbc_2861251562",
+    "listRule": "",
+    "viewRule": null,
+    "createRule": null,
+    "updateRule": null,
+    "deleteRule": null,
+    "name": "credentials",
+    "type": "base",
+    "fields": [
+      {
+        "autogeneratePattern": "[a-z0-9]{15}",
+        "hidden": false,
+        "id": "text3208210256",
+        "max": 15,
+        "min": 15,
+        "name": "id",
+        "pattern": "^[a-z0-9]+$",
+        "presentable": false,
+        "primaryKey": true,
+        "required": true,
+        "system": true,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "number1821597943",
+        "max": null,
+        "min": null,
+        "name": "projectId",
+        "onlyInt": false,
+        "presentable": false,
+        "required": false,
+        "system": false,
+        "type": "number"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text2148143425",
+        "max": 0,
+        "min": 0,
+        "name": "apiKey",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text1932714345",
+        "max": 0,
+        "min": 0,
+        "name": "services",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
+        "hidden": false,
+        "id": "autodate2990389176",
+        "name": "created",
+        "onCreate": true,
+        "onUpdate": false,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      },
+      {
+        "hidden": false,
+        "id": "autodate3332085495",
+        "name": "updated",
+        "onCreate": true,
+        "onUpdate": true,
+        "presentable": false,
+        "system": false,
+        "type": "autodate"
+      }
+    ],
+    "indexes": [],
+    "system": false
+  },
+  {
     "id": "pbc_113564862",
     "listRule": "",
     "viewRule": "",
@@ -60,6 +148,20 @@
         "type": "relation"
       },
       {
+        "autogeneratePattern": "",
+        "hidden": false,
+        "id": "text4293614375",
+        "max": 0,
+        "min": 0,
+        "name": "social_id",
+        "pattern": "",
+        "presentable": false,
+        "primaryKey": false,
+        "required": false,
+        "system": false,
+        "type": "text"
+      },
+      {
         "hidden": false,
         "id": "autodate2990389176",
         "name": "created_at",
@@ -82,7 +184,8 @@
     ],
     "indexes": [
       "CREATE INDEX `idx_GWPz085YKS` ON `todos` (`is_done`)",
-      "CREATE INDEX `idx_O8ks5s3bLv` ON `todos` (`user_id`)"
+      "CREATE INDEX `idx_O8ks5s3bLv` ON `todos` (`user_id`)",
+      "CREATE INDEX `idx_1gKR4gN7yv` ON `todos` (`social_id`)"
     ],
     "system": false
   }

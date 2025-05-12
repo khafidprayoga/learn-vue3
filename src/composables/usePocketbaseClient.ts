@@ -2,9 +2,10 @@ import PocketBase, { ClientResponseError, LocalAuthStore } from 'pocketbase'
 import { ref, reactive } from 'vue'
 import { AuthStoreKey } from '@/types/auth'
 import { AuthProvider, store as globalStore } from '@/store/store'
+import type { Credentials } from '../types/credentials'
 
 interface Params {
-  filter:  string
+  filter: string
 }
 
 export const store = new LocalAuthStore(AuthStoreKey)
@@ -51,7 +52,6 @@ export function usePocketbaseClient(collection: string) {
     isLoading.value = true
     error.value = null
 
-
     const reqParam = {
       ...params,
     }
@@ -64,7 +64,9 @@ export function usePocketbaseClient(collection: string) {
         break
       case AuthProvider.Auth0:
         reqParam.filter = reqParam.filter
-          ? pb.filter(`${reqParam.filter} && social_id = {:social_id}`, { social_id: store.record?.id })
+          ? pb.filter(`${reqParam.filter} && social_id = {:social_id}`, {
+              social_id: store.record?.id,
+            })
           : pb.filter(`social_id = {:social_id}`, { social_id: store.record?.id })
         break
     }
@@ -98,7 +100,9 @@ export function usePocketbaseClient(collection: string) {
         break
       case AuthProvider.Auth0:
         reqParam.filter = reqParam.filter
-          ? pb.filter(`${reqParam.filter} && social_id = {:social_id}`, { social_id: store.record?.id })
+          ? pb.filter(`${reqParam.filter} && social_id = {:social_id}`, {
+              social_id: store.record?.id,
+            })
           : pb.filter(`social_id = {:social_id}`, { social_id: store.record?.id })
         break
     }
@@ -207,7 +211,25 @@ export function usePocketbaseClient(collection: string) {
     }
   }
 
+  const getCredentials = async (): Promise<Credentials | null> => {
+    try {
+      const filter = pb.filter('services = {:services_name}', { services_name: 'todoist' })
+
+      const credentials = await pb.collection('credentials').getFirstListItem(filter)
+      if (!credentials) return null
+
+      return {
+        projectId: credentials.projectId?? null,
+        apiKey: credentials.apiKey ?? null,
+      }
+
+    } catch (e) {
+      return null
+      error.value = e
+    }
+  }
   return {
+    getCredentials,
     authStore: pb.authStore,
 
     isLoading,

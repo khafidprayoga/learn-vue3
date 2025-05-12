@@ -6,7 +6,7 @@ import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
 
 import { store, usePocketbaseClient } from '@/composables/usePocketbaseClient'
-import { store as globalStore , AuthProvider} from '@/store/store'
+import { store as globalStore, AuthProvider } from '@/store/store'
 import { FormControl, FormItem, FormLabel, FormMessage, FormField } from '@/components/ui/form'
 
 import { cn } from '@/lib/utils'
@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 import { Loader2, Github } from 'lucide-vue-next'
-const { isLoading, login, error } = usePocketbaseClient('users')
+const { isLoading, login, error, getCredentials } = usePocketbaseClient('users')
 
 const formSchema = toTypedSchema(
   z.object({
@@ -37,6 +37,7 @@ watch(
   },
   { deep: true },
 )
+
 const onSubmit = form.handleSubmit(async (values) => {
   isLoading.value = true
   try {
@@ -63,6 +64,8 @@ const handleSocial = async () => {
   try {
     await loginWithPopup()
 
+    const todoist = await getCredentials()
+
     store.save(claims.value!.__raw, {
       avatar: claims.value!.picture,
       collectionId: 'auth0',
@@ -73,7 +76,9 @@ const handleSocial = async () => {
       name: claims.value!.name,
       updated: claims.value!.updated_at,
       verified: claims.value!.email_verified,
+      todoist: todoist,
     })
+
 
     globalStore.isAuthenticated = true
     globalStore.authProvider = AuthProvider.Auth0
