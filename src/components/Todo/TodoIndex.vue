@@ -32,6 +32,7 @@ interface Tab {
 }
 
 const currentTab = ref('active')
+const isFirstLogin = ref(false)
 
 const { isLoading, error, data, refetch } = useQuery({
   queryKey: ['tasks', currentTab],
@@ -53,6 +54,7 @@ watch(data, (newData) => {
         created_at: item.created_at,
         updated_at: item.created_at,
       }))
+
       break
 
     case 'completed':
@@ -71,6 +73,9 @@ watch(data, (newData) => {
   switch (currentTab.value) {
     case 'active':
       count.active = parsedData.length
+      if (parsedData.length === 0) {
+        isFirstLogin.value = true
+      }
       break
     case 'completed':
       count.done = parsedData.length
@@ -127,6 +132,7 @@ const handleEdit = async (id: string, newTitle: string) => {
   await updateTask({
     id,
     title: newTitle,
+    is_done: false,
   })
 }
 
@@ -178,9 +184,6 @@ const getTodoCount = computed(() => {
   return getTabCount(tab)
 })
 
-const isFirstLogin = computed(() => {
-  return count.all === 0
-})
 
 </script>
 
@@ -217,7 +220,7 @@ const isFirstLogin = computed(() => {
 }
 
 .tabs button {
-  @apply rounded-none border-b-5 border-gray-500 ;
+  @apply rounded-none border-b-5 border-gray-500;
 }
 
 .tabs button:hover {
@@ -225,7 +228,7 @@ const isFirstLogin = computed(() => {
 }
 
 .tabs> :not(.active) {
-  @apply bg-zinc-300  text-black border-transparent px-5  py-3;
+  @apply bg-zinc-300 text-black border-transparent px-5 py-3;
 }
 
 .tab-content {

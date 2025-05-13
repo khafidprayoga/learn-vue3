@@ -5,7 +5,7 @@ const props = defineProps<{
   todos: Todo[]
   isLoading: boolean
   count: number
-  error: string | null
+  error: Error | null
   activeTab: string
   isFirstLogin: boolean
 }>()
@@ -17,7 +17,7 @@ const props = defineProps<{
       <span class="text-lg font-mono text-center">Loading...</span>
     </template>
     <template v-else-if="props.error">
-      <span class="text-lg font-mono text-center text-red-500">Error: {{ props.error }}</span>
+      <span class="text-lg font-mono text-center text-red-500">Error: {{ props.error.message }}</span>
     </template>
     <template v-else-if="props.todos.length > 0">
       <slot />
