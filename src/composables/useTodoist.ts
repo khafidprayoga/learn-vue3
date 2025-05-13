@@ -1,7 +1,7 @@
-import { computed, ref, reactive } from 'vue'
-import { useQuery, useQueryClient, useMutation } from '@tanstack/vue-query'
+import { reactive } from 'vue'
+import { useQueryClient } from '@tanstack/vue-query'
 import { store } from '@/composables/usePocketbaseClient'
-import { store as globalStore, AuthProvider } from '@/store/store'
+import { v4 as uuidv4 } from 'uuid'
 import type { Todo } from '../types/todo'
 
 const API_URL = 'https://api.todoist.com/rest/v2/tasks'
@@ -53,6 +53,20 @@ export const useTodoist = () => {
     queryClient.invalidateQueries({ queryKey: ['tasks', 'active'] })
   }
 
+  const completeTask = async (task: Todo) => {
+    const url = new URL(`${endpoint}/${task.id}/close`)
+
+    await fetch(url.toString(), {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'X-Request-Id': uuidv4(),
+      },
+    })
+
+    queryClient.invalidateQueries({ queryKey: ['tasks'] })
+  }
+
   const deleteTask = async () => {}
 
   const getTasks = async (tabId: string) => {
@@ -82,5 +96,6 @@ export const useTodoist = () => {
     getTasks,
     addTask,
     updateTask,
+    completeTask,
   }
 }

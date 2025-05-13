@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { onBeforeUnmount, onMounted, ref, computed, watch } from 'vue'
-import { useQuery } from '@tanstack/vue-query'
-import { pb, store, UpdateType, usePocketbaseClient } from '@/composables/usePocketbaseClient'
+import { useQuery, useMutation } from '@tanstack/vue-query'
+import { store } from '@/composables/usePocketbaseClient'
 import { store as globalStore, AuthProvider } from '@/store/store'
 
 import { Button } from '@/components/ui/button'
@@ -13,16 +13,13 @@ import type { Todo } from '@/types/todo'
 import { useTodoist } from '@/composables/useTodoist'
 
 const {
-  resetData,
-} = usePocketbaseClient('todos')
-
-const {
   count,
   todos,
 
   getTasks,
   addTask,
   updateTask,
+  completeTask,
 } = useTodoist()
 
 
@@ -47,12 +44,12 @@ watch(data, (newData) => {
 
   switch (currentTab.value) {
     case 'active':
-      parsedData = newData.map((item: any) => ({
+      parsedData = newData.map((item: any) =>  ({
         id: item.id,
         title: item.content,
-        is_done: item.is_completed,
-        created_at: item.created_at,
-        updated_at: item.created_at,
+        isDone: item.is_completed,
+        createdAt: item.created_at,
+        updatedAt: item.created_at,
       }))
 
       break
@@ -61,8 +58,8 @@ watch(data, (newData) => {
       parsedData = newData?.items.map((item: any) => ({
         id: item.id,
         title: item.content,
-        is_done: true,
-        updated_at: item.completed_at,
+        isDone: true,
+        updatedAt: item.completed_at,
       })) || []
 
       break
@@ -104,23 +101,18 @@ onBeforeUnmount(async () => {
 })
 
 const handleNewTodo = async (title: string) => {
-  if (title === 'reset') {
-    await resetData()
-    return
-  }
-
   const req: Todo = {
     title: title,
-    is_done: false,
+    isDone: false,
   }
 
 
   switch (globalStore.authProvider) {
     case AuthProvider.Auth0:
-      req.social_id = store.record?.id
+      req.socialId = store.record?.id
       break
     case AuthProvider.Pocketbase:
-      req.user_id = store.record?.id
+      req.userId = store.record?.id
       break
   }
 
@@ -128,20 +120,50 @@ const handleNewTodo = async (title: string) => {
 }
 
 const showAddTodo = ref(false)
+const taskActionId = ref('')
+
+const { mutate: markAsDone } = useMutation({
+  mutationFn: (id: string) => {
+    const todo = todos.find((t: Todo) => t.id === id)
+    if (!todo) throw new Error('Todo not found')
+
+    return completeTask(todo)
+  },
+  onSuccess: (_, id) => {
+    taskActionId.value = ''
+    todos.splice(todos.findIndex(todo => todo.id === id), 1)
+  }
+})
+
+const { mutate: updateTodo } = useMutation({
+  mutationFn: (todo: Todo) => {
+    const todoData = todos.find((t: Todo) => t.id === todo.id)
+    if (!todoData) throw new Error('Todo not found')
+
+    return updateTask({
+      ...todoData,
+      title: todo.title,
+    })
+  },
+  onSuccess: () => {
+    taskActionId.value = ''
+  }
+})
+
 const handleEdit = async (id: string, newTitle: string) => {
-  await updateTask({
+  const todo: Todo = {
     id,
     title: newTitle,
-    is_done: false,
-  })
+    isDone: false,
+  }
+
+  taskActionId.value = id
+  updateTodo(todo)
 }
 
 const handleDone = async (id: string) => {
-  // update(id.toString(), { is_done: true }, UpdateType.Done).then(() => {
-  //   count.active--
-  //   count.done++
-  // })
-
+  taskActionId.value = id
+  markAsDone(id)
 }
 
 const tabs = [
@@ -202,8 +224,16 @@ const getTodoCount = computed(() => {
   <div class="tab-content">
     <TodoList :todos="todos" :is-loading="isLoading" :count="getTodoCount" :error="error" :active-tab="currentTab"
       :is-first-login="isFirstLogin">
-      <TodoItem v-for="todo in todos" :key="todo.id" v-bind="todo" @done="handleDone" @edit="handleEdit"
-        :show-action="currentTab === 'active'" :strike-through="currentTab === 'completed' && todo.is_done" />
+      <TodoItem v-for="todo in todos" :key="todo.id"
+        :id="todo.id"
+        :title="todo.title"
+        :is-done="todo.isDone"
+        :updated-at="todo.updatedAt || ''"
+        :show-action="currentTab === 'active' && taskActionId !== todo.id"
+        :is-processing="taskActionId === todo.id"
+        :strike-through="currentTab === 'completed' && todo.isDone"
+        @done="handleDone"
+        @edit="handleEdit" />
     </TodoList>
   </div>
 </template>

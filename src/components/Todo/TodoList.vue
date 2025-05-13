@@ -23,7 +23,7 @@ const props = defineProps<{
       <slot />
     </template>
     <template v-else-if="props.isFirstLogin">
-      <span class="text-lg font-mono text-center">Create your first task! with ALT+K on windows or CMD+K on mac</span>
+      <span class="text-lg font-mono text-center">Create your task! with ALT+K on windows or CMD+K on mac</span>
     </template>
     <template v-else-if="props.count === 0 && props.activeTab !== 'completed'">
       <span class="text-lg font-mono text-center">All task done 👍</span>
