@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { watch, ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
 import { useAuth0 } from '@auth0/auth0-vue'
 import { toTypedSchema } from '@vee-validate/zod'
@@ -16,6 +17,7 @@ import { Input } from '@/components/ui/input'
 import { Loader2, Github } from 'lucide-vue-next'
 const { isLoading, login, error, getCredentials } = usePocketbaseClient('users')
 
+const router = useRouter()
 const formSchema = toTypedSchema(
   z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -42,6 +44,7 @@ const onSubmit = form.handleSubmit(async (values) => {
   isLoading.value = true
   try {
     await login(values.email, values.password)
+    router.push({ name: 'todos' })
   } finally {
     if (!error) {
       globalStore.authProvider = AuthProvider.Pocketbase
@@ -82,6 +85,8 @@ const handleSocial = async () => {
 
     globalStore.isAuthenticated = true
     globalStore.authProvider = AuthProvider.Auth0
+    router.push({ name: 'todos' })
+
   } finally {
     isLoading.value = false
     socialLoading.value = false

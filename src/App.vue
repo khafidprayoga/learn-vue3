@@ -3,10 +3,8 @@ import { onMounted } from 'vue'
 import { store as globalStore, AuthProvider } from '@/store/store'
 import { store as authStore } from '@/composables/usePocketbaseClient'
 import { VueQueryDevtools } from '@tanstack/vue-query-devtools'
-
-import Auth from '@/components/Auth/AuthIndex.vue'
-import Todo from '@/components/Todo/TodoIndex.vue'
 import { useAuth0 } from '@auth0/auth0-vue'
+import router from '@/routes'
 
 onMounted(() => {
   globalStore.isAuthenticated = authStore.isValid
@@ -28,16 +26,17 @@ const logout = () => {
   if (globalStore.authProvider === AuthProvider.Auth0) {
     auth0Logout({
       openUrl: false,
-    }).then(()=>{
+    }).then(() => {
       authStore.clear()
       globalStore.isAuthenticated = false
+      router.push({ name: 'auth' })
     })
     return
   }
 
   authStore.clear()
   globalStore.isAuthenticated = false
-
+  router.push({ name: 'auth' })
 }
 </script>
 
@@ -50,8 +49,7 @@ const logout = () => {
   </h1>
 
   <div class="container">
-    <Auth v-if="!globalStore.isAuthenticated" />
-    <Todo v-else />
+    <router-view></router-view>
   </div>
   <VueQueryDevtools />
 </template>
