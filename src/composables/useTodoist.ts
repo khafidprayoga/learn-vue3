@@ -67,8 +67,6 @@ export const useTodoist = () => {
     queryClient.invalidateQueries({ queryKey: ['tasks'] })
   }
 
-  const deleteTask = async () => {}
-
   const getTasks = async (tabId: string) => {
     const baseUrl = new URL(endpoint)
     baseUrl.searchParams.set('project_id', projectId)

@@ -1,12 +1,8 @@
 import PocketBase, { ClientResponseError, LocalAuthStore } from 'pocketbase'
 import { ref, reactive } from 'vue'
 import { AuthStoreKey } from '@/types/auth'
-import { AuthProvider, store as globalStore } from '@/store/store'
+import { AuthProvider } from '@/store/store'
 import type { Credentials } from '../types/credentials'
-
-interface Params {
-  filter: string
-}
 
 export const store = new LocalAuthStore(AuthStoreKey)
 export const pb = new PocketBase('http://127.0.0.1:8090', store)
@@ -14,6 +10,10 @@ export const pb = new PocketBase('http://127.0.0.1:8090', store)
 export enum UpdateType {
   Done,
   Edit,
+}
+
+interface Params {
+  filter: string
 }
 
 export function usePocketbaseClient(collection: string) {
@@ -34,11 +34,11 @@ export function usePocketbaseClient(collection: string) {
 
     try {
       const authData = await pb.collection('users').authWithPassword(email, password)
-
       pb.authStore.save(authData.token, authData.record)
-      globalStore.isAuthenticated = pb.authStore.isValid
+      return pb.authStore.isValid
     } catch (err) {
       error.value = err
+      return false
     } finally {
       isLoading.value = false
     }
@@ -48,7 +48,7 @@ export function usePocketbaseClient(collection: string) {
     pb.authStore.clear()
   }
 
-  const getCount = async (params: Params = { filter: '' }) => {
+  const getCount = async (params: Params = { filter: '' }, authProvider: AuthProvider) => {
     isLoading.value = true
     error.value = null
 
@@ -56,7 +56,7 @@ export function usePocketbaseClient(collection: string) {
       ...params,
     }
 
-    switch (globalStore.authProvider) {
+    switch (authProvider) {
       case AuthProvider.Pocketbase:
         reqParam.filter = reqParam.filter
           ? pb.filter(`${reqParam.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
@@ -84,7 +84,7 @@ export function usePocketbaseClient(collection: string) {
     }
   }
 
-  const fetchAll = async (params: Params = { filter: '' }) => {
+  const fetchAll = async (params: Params = { filter: '' }, authProvider: AuthProvider) => {
     isLoading.value = true
     error.value = null
 
@@ -92,7 +92,7 @@ export function usePocketbaseClient(collection: string) {
       ...params,
     }
 
-    switch (globalStore.authProvider) {
+    switch (authProvider) {
       case AuthProvider.Pocketbase:
         reqParam.filter = reqParam.filter
           ? pb.filter(`${reqParam.filter} && user_id = {:user_id}`, { user_id: store.record?.id })
@@ -109,7 +109,6 @@ export function usePocketbaseClient(collection: string) {
 
     try {
       const res = await pb.collection(collection).getFullList(reqParam)
-
       items.splice(0, items.length, ...res)
     } catch (err: unknown) {
       if (err instanceof ClientResponseError) {
@@ -153,7 +152,6 @@ export function usePocketbaseClient(collection: string) {
     try {
       const newItem = await pb.collection(collection).create(data)
       items.push(newItem)
-
       return newItem
     } catch (err) {
       error.value = err
@@ -175,7 +173,6 @@ export function usePocketbaseClient(collection: string) {
         return
       }
 
-      // for the edit
       if (index !== -1) {
         items[index] = updatedItems
       }
@@ -194,7 +191,6 @@ export function usePocketbaseClient(collection: string) {
 
     try {
       const allItems = await pb.collection(collection).getFullList()
-
       const updatedItems = allItems.map((item) => {
         pb.collection(collection).update(item.id, {
           is_done: false,
@@ -202,7 +198,6 @@ export function usePocketbaseClient(collection: string) {
       })
 
       await Promise.all(updatedItems)
-
       items.splice(0, items.length, ...allItems)
     } catch (e) {
       error.value = e
@@ -214,37 +209,32 @@ export function usePocketbaseClient(collection: string) {
   const getCredentials = async (): Promise<Credentials | null> => {
     try {
       const filter = pb.filter('services = {:services_name}', { services_name: 'todoist' })
-
       const credentials = await pb.collection('credentials').getFirstListItem(filter)
       if (!credentials) return null
 
       return {
-        projectId: credentials.projectId?? null,
+        projectId: credentials.projectId ?? null,
         apiKey: credentials.apiKey ?? null,
       }
-
     } catch (e) {
       return null
       error.value = e
     }
   }
+
   return {
     getCredentials,
-    authStore: pb.authStore,
-
     isLoading,
     error,
     items,
     count,
     item,
-
     fetchAll,
     fetchOne,
     create,
     update,
     resetData,
     getCount,
-
     login,
     logout,
   }

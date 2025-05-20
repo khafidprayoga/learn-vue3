@@ -39,8 +39,16 @@ const newTitle = ref(props.title)
 
 <template>
   <li class="todo-item">
-    <Input v-if="isEdit" v-model="newTitle" @keyup.enter="handleSave" @keyup.esc="isEdit = false" class="edit-input" />
-    <span v-else class="todo-content" :class="{ 'line-through': strikeThrough }">{{ props.title }}</span>
+    <Input
+      v-if="isEdit"
+      v-model="newTitle"
+      @keyup.enter="handleSave"
+      @keyup.esc="isEdit = false"
+      class="edit-input"
+    />
+    <span v-else class="todo-content" :class="{ 'line-through': strikeThrough }">{{
+      props.title
+    }}</span>
     <span v-if="strikeThrough">
       finished {{ formatDistanceToNow(new Date(props.updatedAt), { addSuffix: true }) }}
     </span>

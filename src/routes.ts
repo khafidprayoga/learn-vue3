@@ -1,31 +1,30 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 import TodoIndex from './components/Todo/TodoIndex.vue'
 import AuthIndex from './components/Auth/AuthIndex.vue'
-
-import { store } from './store/store'
+import { useAuthStore } from './store/authStore'
 
 const routes: RouteRecordRaw[] = [
   {
     path: '/',
-    redirect: '/todos'
+    redirect: '/todos',
   },
   {
     path: '/todos',
     component: TodoIndex,
     name: 'todos',
     meta: {
-      requiresAuth: true
-    }
+      requiresAuth: true,
+    },
   },
   {
     path: '/auth',
     component: AuthIndex,
-    name: 'auth'
+    name: 'auth',
   },
   {
     path: '/:pathMatch(.*)*',
-    redirect: '/todos'
-  }
+    redirect: '/todos',
+  },
 ]
 
 const router = createRouter({
@@ -34,7 +33,8 @@ const router = createRouter({
 })
 
 router.beforeEach((to, from, next) => {
-  const isAuthenticated = store.isAuthenticated
+  const authStore = useAuthStore()
+  const isAuthenticated = authStore.isAuthenticated
 
   if (to.name === 'auth' && isAuthenticated) {
     next({ name: 'todos' })

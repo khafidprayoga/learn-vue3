@@ -37,7 +37,6 @@ const emit = defineEmits<{
 const isDisabled = computed(() => {
   return !form.isFieldValid('title') || isLoading.value
 })
-
 </script>
 
 <template>

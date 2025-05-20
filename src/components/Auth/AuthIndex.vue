@@ -2,12 +2,12 @@
 import { watch, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useForm } from 'vee-validate'
-import { useAuth0 } from '@auth0/auth0-vue'
 import { toTypedSchema } from '@vee-validate/zod'
 import * as z from 'zod'
-
-import { store, usePocketbaseClient } from '@/composables/usePocketbaseClient'
-import { store as globalStore, AuthProvider } from '@/store/store'
+import { useAuthStore } from '@/store/authStore'
+import { useAuth0 } from '@auth0/auth0-vue'
+import { store as pbAuthStore, usePocketbaseClient } from '@/composables/usePocketbaseClient'
+import { AuthProvider } from '@/store/store'
 import { FormControl, FormItem, FormLabel, FormMessage, FormField } from '@/components/ui/form'
 
 import { cn } from '@/lib/utils'
@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 
 import { Loader2, Github } from 'lucide-vue-next'
-const { isLoading, login, error, getCredentials } = usePocketbaseClient('users')
+const { isLoading, error, getCredentials } = usePocketbaseClient('users')
 
 const router = useRouter()
 const formSchema = toTypedSchema(
@@ -40,24 +40,23 @@ watch(
   { deep: true },
 )
 
+const authStore = useAuthStore()
+const { loginWithPopup, idTokenClaims: claims, error: auth0Error } = useAuth0()
+
 const onSubmit = form.handleSubmit(async (values) => {
   isLoading.value = true
   try {
-    await login(values.email, values.password)
+    await authStore.authenticate(AuthProvider.Pocketbase, values.email, values.password)
+
     router.push({ name: 'todos' })
   } finally {
     if (!error) {
-      globalStore.authProvider = AuthProvider.Pocketbase
       form.resetForm()
     }
 
     isLoading.value = false
   }
 })
-
-const { loginWithPopup,
-  idTokenClaims: claims,
-} = useAuth0()
 
 const socialLoading = ref(false)
 const handleSocial = async () => {
@@ -69,7 +68,7 @@ const handleSocial = async () => {
 
     const todoist = await getCredentials()
 
-    store.save(claims.value!.__raw, {
+    pbAuthStore.save(claims.value!.__raw, {
       avatar: claims.value!.picture,
       collectionId: 'auth0',
       collectionName: 'github',
@@ -82,11 +81,9 @@ const handleSocial = async () => {
       todoist: todoist,
     })
 
+    await authStore.authenticate(AuthProvider.Auth0)
 
-    globalStore.isAuthenticated = true
-    globalStore.authProvider = AuthProvider.Auth0
     router.push({ name: 'todos' })
-
   } finally {
     isLoading.value = false
     socialLoading.value = false
@@ -102,8 +99,16 @@ const handleSocial = async () => {
           <FormItem>
             <FormLabel>Email</FormLabel>
             <FormControl>
-              <Input type="email" placeholder="acme@example.com" v-bind="field" auto-capitalize="none"
-                auto-complete="email" auto-correct="off" :disabled="isLoading" class="email-input" />
+              <Input
+                type="email"
+                placeholder="acme@example.com"
+                v-bind="field"
+                auto-capitalize="none"
+                auto-complete="email"
+                auto-correct="off"
+                :disabled="isLoading"
+                class="email-input"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -112,8 +117,16 @@ const handleSocial = async () => {
           <FormItem>
             <FormLabel>Password</FormLabel>
             <FormControl>
-              <Input type="password" v-bind="field" placeholder="supersecret" auto-capitalize="none"
-                auto-complete="password" auto-correct="off" :disabled="isLoading" class="password-input" />
+              <Input
+                type="password"
+                v-bind="field"
+                placeholder="supersecret"
+                auto-capitalize="none"
+                auto-complete="password"
+                auto-correct="off"
+                :disabled="isLoading"
+                class="password-input"
+              />
             </FormControl>
             <FormMessage />
           </FormItem>
@@ -132,9 +145,7 @@ const handleSocial = async () => {
         <span class="w-full border-t" />
       </div>
       <div class="relative flex justify-center text-xs uppercase">
-        <span class="bg-background px-2 text-muted-foreground">
-          Or continue with
-        </span>
+        <span class="bg-background px-2 text-muted-foreground"> Or continue with </span>
       </div>
     </div>
     <Button variant="outline" type="button" :disabled="isLoading" @click="handleSocial">

@@ -17,13 +17,17 @@ const props = defineProps<{
       <span class="text-lg font-mono text-center">Loading...</span>
     </template>
     <template v-else-if="props.error">
-      <span class="text-lg font-mono text-center text-red-500">Error: {{ props.error.message }}</span>
+      <span class="text-lg font-mono text-center text-red-500"
+        >Error: {{ props.error.message }}</span
+      >
     </template>
     <template v-else-if="props.todos.length > 0">
       <slot />
     </template>
     <template v-else-if="props.isFirstLogin">
-      <span class="text-lg font-mono text-center">Create your task! with ALT+K on windows or CMD+K on mac</span>
+      <span class="text-lg font-mono text-center"
+        >Create your task! with ALT+K on windows or CMD+K on mac</span
+      >
     </template>
     <template v-else-if="props.count === 0 && props.activeTab !== 'completed'">
       <span class="text-lg font-mono text-center">All task done 👍</span>

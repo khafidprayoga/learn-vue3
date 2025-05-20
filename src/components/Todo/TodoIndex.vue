@@ -2,8 +2,8 @@
 import { onBeforeUnmount, onMounted, ref, computed, watch } from 'vue'
 import { useQuery, useMutation } from '@tanstack/vue-query'
 import { store } from '@/composables/usePocketbaseClient'
-import { store as globalStore, AuthProvider } from '@/store/store'
-
+import { AuthProvider } from '@/store/store'
+import { useAuthStore } from '@/store/authStore'
 import { Button } from '@/components/ui/button'
 import TodoItem from './TodoItem.vue'
 import TodoList from './TodoList.vue'
@@ -22,7 +22,7 @@ const {
   completeTask,
 } = useTodoist()
 
-
+const authStore = useAuthStore()
 interface Tab {
   id: string
   label: string
@@ -44,7 +44,7 @@ watch(data, (newData) => {
 
   switch (currentTab.value) {
     case 'active':
-      parsedData = newData.map((item: any) =>  ({
+      parsedData = newData.map((item: any) => ({
         id: item.id,
         title: item.content,
         isDone: item.is_completed,
@@ -55,17 +55,16 @@ watch(data, (newData) => {
       break
 
     case 'completed':
-      parsedData = newData?.items.map((item: any) => ({
-        id: item.id,
-        title: item.content,
-        isDone: true,
-        updatedAt: item.completed_at,
-      })) || []
+      parsedData =
+        newData?.items.map((item: any) => ({
+          id: item.id,
+          title: item.content,
+          isDone: true,
+          updatedAt: item.completed_at,
+        })) || []
 
       break
   }
-
-
 
   switch (currentTab.value) {
     case 'active':
@@ -82,11 +81,8 @@ watch(data, (newData) => {
   todos.splice(0, todos.length, ...parsedData)
 })
 
-
-
-
 const handleKeyDown = (event: KeyboardEvent) => {
-  if ((event.altKey && event.key === 'k') && currentTab.value === "active") {
+  if (event.altKey && event.key === 'k' && currentTab.value === 'active') {
     showAddTodo.value = !showAddTodo.value
   }
 }
@@ -97,7 +93,6 @@ onMounted(async () => {
 
 onBeforeUnmount(async () => {
   window.removeEventListener('keydown', handleKeyDown)
-
 })
 
 const handleNewTodo = async (title: string) => {
@@ -106,8 +101,7 @@ const handleNewTodo = async (title: string) => {
     isDone: false,
   }
 
-
-  switch (globalStore.authProvider) {
+  switch (authStore.authProvider) {
     case AuthProvider.Auth0:
       req.socialId = store.record?.id
       break
@@ -131,8 +125,11 @@ const { mutate: markAsDone } = useMutation({
   },
   onSuccess: (_, id) => {
     taskActionId.value = ''
-    todos.splice(todos.findIndex(todo => todo.id === id), 1)
-  }
+    todos.splice(
+      todos.findIndex((todo) => todo.id === id),
+      1,
+    )
+  },
 })
 
 const { mutate: updateTodo } = useMutation({
@@ -147,7 +144,7 @@ const { mutate: updateTodo } = useMutation({
   },
   onSuccess: () => {
     taskActionId.value = ''
-  }
+  },
 })
 
 const handleEdit = async (id: string, newTitle: string) => {
@@ -178,16 +175,13 @@ const tabs = [
 ]
 
 const changeTab = async (tabId: string) => {
-
-  const tab = tabs.find(tab => tab.id === tabId)
+  const tab = tabs.find((tab) => tab.id === tabId)
   if (!tab) return
 
   currentTab.value = tabId
   showAddTodo.value = false
   refetch()
-
 }
-
 
 const getTabCount = (tab: Tab) => {
   switch (tab.id) {
@@ -201,12 +195,10 @@ const getTabCount = (tab: Tab) => {
 }
 
 const getTodoCount = computed(() => {
-  const tab = tabs.find(tab => tab.id === currentTab.value)
+  const tab = tabs.find((tab) => tab.id === currentTab.value)
   if (!tab) return 0
   return getTabCount(tab)
 })
-
-
 </script>
 
 <template>
@@ -214,17 +206,29 @@ const getTodoCount = computed(() => {
 
   <div class="tabs-wrapper">
     <ol class="tabs">
-      <Button v-for="tab in tabs" :key="tab.label" :class="{ active: currentTab === tab.id }"
-        @click="changeTab(tab.id)">
+      <Button
+        v-for="tab in tabs"
+        :key="tab.label"
+        :class="{ active: currentTab === tab.id }"
+        @click="changeTab(tab.id)"
+      >
         {{ tab.label }}
         <span>({{ getTabCount(tab) }})</span>
       </Button>
     </ol>
   </div>
   <div class="tab-content">
-    <TodoList :todos="todos" :is-loading="isLoading" :count="getTodoCount" :error="error" :active-tab="currentTab"
-      :is-first-login="isFirstLogin">
-      <TodoItem v-for="todo in todos" :key="todo.id"
+    <TodoList
+      :todos="todos"
+      :is-loading="isLoading"
+      :count="getTodoCount"
+      :error="error"
+      :active-tab="currentTab"
+      :is-first-login="isFirstLogin"
+    >
+      <TodoItem
+        v-for="todo in todos"
+        :key="todo.id"
         :id="todo.id"
         :title="todo.title"
         :is-done="todo.isDone"
@@ -233,7 +237,8 @@ const getTodoCount = computed(() => {
         :is-processing="taskActionId === todo.id"
         :strike-through="currentTab === 'completed' && todo.isDone"
         @done="handleDone"
-        @edit="handleEdit" />
+        @edit="handleEdit"
+      />
     </TodoList>
   </div>
 </template>
@@ -257,7 +262,7 @@ const getTodoCount = computed(() => {
   @apply cursor-pointer;
 }
 
-.tabs> :not(.active) {
+.tabs > :not(.active) {
   @apply bg-zinc-300 text-black border-transparent px-5 py-3;
 }
 
